@@ -1,0 +1,19 @@
+<div class="dashboard">
+  <h1 class="welcome">
+    مرحباً {{ auth.user()?.full_name ?? '' }}
+  </h1>
+
+  <div class="cards-grid">
+    @for (card of cards; track card.title) {
+      <mat-card class="stat-card">
+        <div class="card-icon" [style.background-color]="card.color">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div class="card-info">
+          <span class="card-title">{{ card.title }}</span>
+          <span class="card-value">{{ card.value }}</span>
+        </div>
+      </mat-card>
+    }
+  </div>
+</div>

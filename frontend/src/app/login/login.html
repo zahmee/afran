@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>عفران</mat-card-title>
+      <mat-card-subtitle>تسجيل الدخول</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>اسم المستخدم</mat-label>
+          <input matInput formControlName="username" autocomplete="username">
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>كلمة المرور</mat-label>
+          <input matInput
+                 [type]="hidePassword() ? 'password' : 'text'"
+                 formControlName="password"
+                 autocomplete="current-password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button"
+                  (click)="hidePassword.set(!hidePassword())"
+                  [attr.aria-label]="hidePassword() ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور'">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        @if (error()) {
+          <p class="error-message">{{ error() }}</p>
+        }
+
+        <button mat-flat-button color="primary" type="submit"
+                class="full-width login-btn"
+                [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            دخول
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

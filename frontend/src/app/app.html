@@ -1,0 +1,36 @@
+@if (showLayout()) {
+  <mat-toolbar color="primary" class="app-toolbar">
+    <button mat-icon-button (click)="toggleSidenav()" aria-label="فتح القائمة">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="app-title">عفران</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="toggleDarkMode()" [attr.aria-label]="darkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'">
+      <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+    <button mat-icon-button (click)="logout()" aria-label="تسجيل الخروج">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="app-sidenav-container">
+    <mat-sidenav [opened]="sidenavOpen()" mode="side" position="end">
+      <mat-nav-list>
+        @for (item of navItems(); track item.route) {
+          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <div class="content-area">
+        <router-outlet />
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <router-outlet />
+}
