@@ -1,0 +1,103 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">تسجيل مرتجع</h1>
+      <p class="page-subtitle">إرجاع بضاعة إلى المورد</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" autocomplete="off">
+
+      <div class="header-card">
+        <div class="field">
+          <label for="supplier_id" class="field-label">اسم المورد</label>
+          <p-select
+            inputId="supplier_id"
+            formControlName="supplier_id"
+            [options]="suppliers()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="اختر المورد..."
+            [style]="{'width': '100%'}"
+          />
+        </div>
+
+        <div class="field">
+          <label for="return_date" class="field-label">التاريخ</label>
+          <input id="return_date" type="date" formControlName="return_date" class="native-input" />
+        </div>
+
+        <div class="field">
+          <label for="return_time" class="field-label">الوقت</label>
+          <input id="return_time" type="time" formControlName="return_time" class="native-input" />
+        </div>
+
+        <div class="field">
+          <label class="field-label">الإجمالي</label>
+          <div class="total-display" aria-label="إجمالي البنود">
+            {{ total() | number:'1.2-2' }}
+            <span class="currency">ر.س</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="items-section">
+        <h2 class="section-title">بنود المرتجع</h2>
+
+        <div class="table-wrapper">
+          <table class="items-table" formArrayName="items" aria-label="بنود المرتجع">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-qty">العدد</th>
+                <th class="col-price">المبلغ (ر.س)</th>
+                <th class="col-total">الإجمالي (ر.س)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of rowIndices; track i) {
+                <tr [formGroupName]="i" [class.filled]="rowTotals()[i] > 0">
+                  <td class="col-num row-index">{{ i + 1 }}</td>
+                  <td class="col-qty">
+                    <input type="number" formControlName="quantity" class="cell-input"
+                      min="0.01" step="0.01" placeholder="0"
+                      [attr.aria-label]="'العدد في الصف ' + (i + 1)" />
+                  </td>
+                  <td class="col-price">
+                    <input type="number" formControlName="unit_price" class="cell-input"
+                      min="0.01" step="0.01" placeholder="0.00"
+                      [attr.aria-label]="'المبلغ في الصف ' + (i + 1)" />
+                  </td>
+                  <td class="col-total total-cell">
+                    @if (rowTotals()[i] > 0) {
+                      {{ rowTotals()[i] | number:'1.2-2' }}
+                    } @else {
+                      <span class="empty-total">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="footer-row">
+                <td colspan="3" class="footer-label">المجموع الكلي</td>
+                <td class="footer-total">{{ total() | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="actions">
+        <p-button type="submit" label="حفظ المرتجع" icon="pi pi-save"
+          [loading]="saving()" [disabled]="saving()" />
+      </div>
+
+    </form>
+  }
+</div>

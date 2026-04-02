@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
@@ -54,6 +55,7 @@ function nowTimeStr(): string {
 export class Sales implements OnInit {
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
   private messageService = inject(MessageService);
 
   protected readonly suppliers = signal<Supplier[]>([]);
@@ -161,7 +163,7 @@ export class Sales implements OnInit {
         detail: `تم حفظ استلام البضاعة بإجمالي ${this.total().toFixed(2)} ر.س`,
         life: 4000,
       });
-      this.resetForm();
+      this.router.navigate(['/receipts']);
     } catch {
       this.messageService.add({
         severity: 'error',

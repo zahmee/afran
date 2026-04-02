@@ -52,7 +52,7 @@ export class App {
 
   private readonly allNavItems: NavItem[] = [
     { label: 'الرئيسية', icon: 'pi-home', route: '/dashboard' },
-    { label: 'استلام البضاعة', icon: 'pi-shopping-cart', route: '/sales' },
+    { label: 'البضاعة المستلمة', icon: 'pi-shopping-cart', route: '/receipts' },
     { label: 'الموردين', icon: 'pi-users', route: '/suppliers' },
     { label: 'المنتجات', icon: 'pi-box', route: '/products' },
     { label: 'المرتجعات', icon: 'pi-undo', route: '/returns' },

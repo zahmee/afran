@@ -160,6 +160,38 @@ class Payment(Base):
     supplier: Mapped["Supplier"] = relationship(back_populates="payments")
 
 
+# ─── SupplierReturn (مرتجعات الموردين) ──────────────────
+class SupplierReturn(Base):
+    __tablename__ = "supplier_returns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"))
+    return_date: Mapped[date] = mapped_column(Date, index=True)
+    return_time: Mapped[str] = mapped_column(String(5))  # HH:MM
+    total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0"))
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    supplier: Mapped["Supplier"] = relationship()
+    items: Mapped[list["SupplierReturnItem"]] = relationship(
+        back_populates="supplier_return", cascade="all, delete-orphan"
+    )
+
+
+# ─── SupplierReturnItem (بنود المرتجعات) ─────────────────
+class SupplierReturnItem(Base):
+    __tablename__ = "supplier_return_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    return_id: Mapped[int] = mapped_column(ForeignKey("supplier_returns.id"))
+    quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    total: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    supplier_return: Mapped["SupplierReturn"] = relationship(back_populates="items")
+
+
 # ─── GoodsReceipt (استلام البضاعة) ──────────────────────
 class GoodsReceipt(Base):
     __tablename__ = "goods_receipts"

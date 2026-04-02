@@ -60,6 +60,24 @@ class GoodsReceiptCreate(BaseModel):
         return v
 
 
+class GoodsReceiptUpdate(BaseModel):
+    supplier_id: int | None = None
+    receipt_date: date | None = None
+    receipt_time: str | None = None
+    items: list[GoodsReceiptItemCreate] | None = None
+
+    @field_validator("receipt_time")
+    @classmethod
+    def time_format(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        v = v.strip()
+        parts = v.split(":")
+        if len(parts) != 2 or not all(p.isdigit() for p in parts):
+            raise ValueError("صيغة الوقت غير صحيحة — يجب أن تكون HH:MM")
+        return v
+
+
 class GoodsReceiptResponse(BaseModel):
     id: int
     supplier_id: int
@@ -67,7 +85,16 @@ class GoodsReceiptResponse(BaseModel):
     receipt_date: date
     receipt_time: str
     total_amount: Decimal
+    items_count: int
     created_at: datetime
     items: list[GoodsReceiptItemResponse]
 
     model_config = {"from_attributes": True}
+
+
+class PaginatedGoodsReceiptResponse(BaseModel):
+    items: list[GoodsReceiptResponse]
+    total: int
+    page: int
+    pages: int
+    page_size: int

@@ -1,0 +1,126 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">المرتجعات</h1>
+      <p class="page-subtitle">@if (!loading()) { {{ total() }} سجل إجمالي }</p>
+    </div>
+    <p-button label="تسجيل مرتجع" icon="pi pi-plus" (onClick)="newReturn()" />
+  </div>
+
+  <!-- فلاتر -->
+  <div class="filters-bar">
+    <div class="search-field">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="بحث باسم المورد..."
+        [(ngModel)]="supplierName" (input)="onSearchInput()" aria-label="بحث باسم المورد" />
+    </div>
+    <p-select [options]="yearOptions" [(ngModel)]="selectedYear" optionLabel="label" optionValue="value"
+      (onChange)="onFilterChange()" [style]="{'min-width': '130px'}" aria-label="فلتر السنة" />
+    <p-select [options]="monthOptions" [(ngModel)]="selectedMonth" optionLabel="label" optionValue="value"
+      (onChange)="onFilterChange()" [style]="{'min-width': '140px'}" aria-label="فلتر الشهر" />
+    <p-select [options]="dayOptions" [(ngModel)]="selectedDay" optionLabel="label" optionValue="value"
+      (onChange)="onFilterChange()" [style]="{'min-width': '120px'}" aria-label="فلتر اليوم" />
+    <p-button icon="pi pi-times" severity="secondary" [text]="true"
+      (onClick)="clearFilters()" pTooltip="مسح الفلاتر" tooltipPosition="top" aria-label="مسح الفلاتر" />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+  } @else if (returns().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-inbox empty-icon"></i>
+      <p class="empty-text">لا توجد سجلات مرتجعات</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="returns-table" aria-label="جدول المرتجعات">
+        <thead>
+          <tr>
+            <th class="col-expand"></th>
+            <th>#</th>
+            <th>المورد</th>
+            <th>التاريخ</th>
+            <th>الوقت</th>
+            <th>عدد البنود</th>
+            <th>الإجمالي (ر.س)</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of returns(); track r.id) {
+            <tr [class.expanded-parent]="expandedId() === r.id">
+              <td class="col-expand">
+                <button class="expand-btn" (click)="toggleExpand(r.id)"
+                  [pTooltip]="expandedId() === r.id ? 'إخفاء البنود' : 'عرض البنود'"
+                  tooltipPosition="top" [attr.aria-expanded]="expandedId() === r.id">
+                  <i class="pi" [class.pi-chevron-down]="expandedId() !== r.id" [class.pi-chevron-up]="expandedId() === r.id"></i>
+                </button>
+              </td>
+              <td class="col-id">{{ r.id }}</td>
+              <td class="col-supplier">{{ r.supplier_name }}</td>
+              <td class="col-date">{{ r.return_date | date:'yyyy/MM/dd' }}</td>
+              <td class="col-time">{{ r.return_time }}</td>
+              <td class="col-count">{{ r.items_count }}</td>
+              <td class="col-total">{{ r.total_amount | number:'1.2-2' }}</td>
+              <td class="col-actions">
+                <button class="action-btn edit-btn" (click)="editReturn(r.id)"
+                  pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل المرتجع">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteReturn(r)"
+                  [disabled]="deletingId() === r.id" pTooltip="حذف" tooltipPosition="top" aria-label="حذف المرتجع">
+                  <i class="pi"
+                    [class.pi-trash]="deletingId() !== r.id"
+                    [class.pi-spinner]="deletingId() === r.id"
+                    [class.pi-spin]="deletingId() === r.id"></i>
+                </button>
+              </td>
+            </tr>
+
+            @if (expandedId() === r.id) {
+              <tr class="items-row">
+                <td colspan="8" class="items-cell">
+                  <div class="items-panel">
+                    <table class="items-detail-table" aria-label="بنود المرتجع">
+                      <thead>
+                        <tr>
+                          <th>#</th><th>العدد</th><th>المبلغ (ر.س)</th><th>الإجمالي (ر.س)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of r.items; track item.id; let idx = $index) {
+                          <tr>
+                            <td class="item-idx">{{ idx + 1 }}</td>
+                            <td>{{ item.quantity | number:'1.0-2' }}</td>
+                            <td>{{ item.unit_price | number:'1.2-2' }}</td>
+                            <td class="item-total">{{ item.total | number:'1.2-2' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot>
+                        <tr class="items-footer">
+                          <td colspan="3" class="items-footer-label">المجموع</td>
+                          <td class="items-footer-total">{{ r.total_amount | number:'1.2-2' }}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn" (click)="nextPage()" [disabled]="!hasNext()" aria-label="التالية">
+        <i class="pi pi-angle-right"></i>
+      </button>
+      <span class="page-info">صفحة {{ page() }} من {{ pages() }} &nbsp;·&nbsp; {{ total() }} سجل</span>
+      <button class="page-btn" (click)="prevPage()" [disabled]="!hasPrev()" aria-label="السابقة">
+        <i class="pi pi-angle-left"></i>
+      </button>
+    </div>
+  }
+</div>

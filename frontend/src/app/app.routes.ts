@@ -23,6 +23,31 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'receipts',
+    loadComponent: () => import('./receipts/receipts').then(m => m.Receipts),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'return-entry',
+    loadComponent: () => import('./return-entry/return-entry').then(m => m.ReturnEntry),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'returns',
+    loadComponent: () => import('./returns/returns').then(m => m.Returns),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'returns/:id/edit',
+    loadComponent: () => import('./returns/return-edit').then(m => m.ReturnEdit),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'receipts/:id/edit',
+    loadComponent: () => import('./receipts/receipt-edit').then(m => m.ReceiptEdit),
+    canActivate: [authGuard],
+  },
+  {
     path: 'suppliers',
     loadComponent: () => import('./suppliers/suppliers').then(m => m.Suppliers),
     canActivate: [authGuard],
