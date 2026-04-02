@@ -62,3 +62,35 @@ async def get_current_user(
 
 
 CurrentUser = Annotated[object, Depends(get_current_user)]
+
+# ─── توقيت السعودية ────────────────────────────────────
+_SA_TZ = timezone(timedelta(hours=3))
+
+
+def today_sa() -> "date":
+    from datetime import date  # noqa: F401
+    return datetime.now(_SA_TZ).date()
+
+
+def check_write_permission(user, record_date) -> None:
+    """يرفع 403 إذا لم يكن للمستخدم صلاحية الكتابة على هذا التاريخ."""
+    if user.role == "reports":
+        raise HTTPException(status_code=403, detail="صلاحية التقارير للاستعراض فقط")
+    if user.role == "data_entry" and record_date != today_sa():
+        raise HTTPException(status_code=403, detail="مدخل البيانات يملك صلاحية تعديل سجلات اليوم فقط")
+
+
+def check_delete_permission(user) -> None:
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="صلاحية الحذف للمدير فقط")
+
+
+def check_admin_permission(user) -> None:
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="غير مصرح لك")
+
+
+def check_not_reports(user) -> None:
+    """يسمح للمدير ومدخل البيانات، يرفض صلاحية التقارير."""
+    if user.role == "reports":
+        raise HTTPException(status_code=403, detail="صلاحية التقارير للاستعراض فقط")

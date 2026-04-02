@@ -42,6 +42,8 @@ interface SupplierBalanceResponse {
   net_goods_received: number;
   sales_rate: number;
   total_already_paid: number;
+  remaining_deduction: number;
+  net_after_remaining: number;
   suggested_amount: number;
 }
 
@@ -164,13 +166,23 @@ function maxAmountValidator(getMax: () => number | null): ValidatorFn {
                 <span class="balance-val">{{ balanceInfo()!.opening_balance | number:'1.2-2' }} ر.س</span>
               </div>
               <div class="balance-row">
-                <span class="balance-label">صافي البضاعة</span>
+                <span class="balance-label">إجمالي البضاعة</span>
                 <span class="balance-val">{{ balanceInfo()!.net_goods_received | number:'1.2-2' }} ر.س</span>
+              </div>
+              @if (balanceInfo()!.remaining_deduction > 0) {
+                <div class="balance-row">
+                  <span class="balance-label">خصم الباقي في الاستلام</span>
+                  <span class="balance-val deduction">− {{ balanceInfo()!.remaining_deduction | number:'1.2-2' }} ر.س</span>
+                </div>
+              }
+              <div class="balance-row">
+                <span class="balance-label">صافي البضاعة</span>
+                <span class="balance-val">{{ balanceInfo()!.net_after_remaining | number:'1.2-2' }} ر.س</span>
               </div>
               <div class="balance-row">
                 <span class="balance-label">نسبة المحل ({{ balanceInfo()!.sales_rate }}%)</span>
                 <span class="balance-val deduction">
-                  − {{ (balanceInfo()!.net_goods_received * balanceInfo()!.sales_rate / 100) | number:'1.2-2' }} ر.س
+                  − {{ (balanceInfo()!.net_after_remaining * balanceInfo()!.sales_rate / 100) | number:'1.2-2' }} ر.س
                 </span>
               </div>
               <div class="balance-row">

@@ -73,6 +73,7 @@ export class Sales implements OnInit {
         this.fb.group({
           quantity: this.fb.control<number | null>(null),
           unit_price: this.fb.control<number | null>(null),
+          remaining: this.fb.control<number | null>(null),
         })
       )
     ),
@@ -135,6 +136,7 @@ export class Sales implements OnInit {
         quantity: Number(r!.quantity),
         unit_price: Number(r!.unit_price),
         total: Number(r!.quantity) * Number(r!.unit_price),
+        remaining: Math.floor(Number(r!.remaining) || 0),
       }));
 
     if (!filledItems.length) {
@@ -181,7 +183,7 @@ export class Sales implements OnInit {
       supplier_id: null,
       receipt_date: todayStr(),
       receipt_time: nowTimeStr(),
-      items: Array.from({ length: ROWS }, () => ({ quantity: null, unit_price: null })),
+      items: Array.from({ length: ROWS }, () => ({ quantity: null, unit_price: null, remaining: null })),
     });
   }
 }

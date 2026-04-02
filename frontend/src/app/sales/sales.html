@@ -69,6 +69,7 @@
                 <th class="col-qty">العدد</th>
                 <th class="col-price">المبلغ (ر.س)</th>
                 <th class="col-total">الإجمالي (ر.س)</th>
+                <th class="col-remaining">الباقي</th>
               </tr>
             </thead>
             <tbody>
@@ -104,12 +105,23 @@
                       <span class="empty-total">—</span>
                     }
                   </td>
+                  <td class="col-remaining">
+                    <input
+                      type="number"
+                      formControlName="remaining"
+                      class="cell-input"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      [attr.aria-label]="'الباقي في الصف ' + (i + 1)"
+                    />
+                  </td>
                 </tr>
               }
             </tbody>
             <tfoot>
               <tr class="footer-row">
-                <td colspan="3" class="footer-label">المجموع الكلي</td>
+                <td colspan="4" class="footer-label">المجموع الكلي</td>
                 <td class="footer-total">{{ total() | number:'1.2-2' }}</td>
               </tr>
             </tfoot>

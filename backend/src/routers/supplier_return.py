@@ -6,7 +6,7 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser
+from src.auth.auth import CurrentUser, check_delete_permission, check_write_permission
 from src.database.db import get_db
 from src.database.models import Supplier, SupplierReturn, SupplierReturnItem
 from src.models.supplier_return import (
@@ -111,6 +111,8 @@ async def create_return(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_write_permission(user, body.return_date)
+
     supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
     if not supplier.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="المورد غير موجود")
@@ -158,6 +160,8 @@ async def update_return(
     if not ret:
         raise HTTPException(status_code=404, detail="سجل المرتجع غير موجود")
 
+    check_write_permission(user, ret.return_date)
+
     if body.supplier_id is not None:
         supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
         if not supplier.scalar_one_or_none():
@@ -200,6 +204,8 @@ async def delete_return(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_delete_permission(user)
+
     result = await db.execute(select(SupplierReturn).where(SupplierReturn.id == return_id))
     ret = result.scalar_one_or_none()
     if not ret:

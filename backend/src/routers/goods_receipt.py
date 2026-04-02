@@ -6,7 +6,7 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser
+from src.auth.auth import CurrentUser, check_delete_permission, check_write_permission
 from src.database.db import get_db
 from src.database.models import GoodsReceipt, GoodsReceiptItem, Supplier
 from src.models.goods_receipt import (
@@ -119,6 +119,8 @@ async def create_receipt(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_write_permission(user, body.receipt_date)
+
     supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
     if not supplier.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="المورد غير موجود")
@@ -141,6 +143,7 @@ async def create_receipt(
             quantity=item.quantity,
             unit_price=item.unit_price,
             total=item.quantity * item.unit_price,
+            remaining=item.remaining,
         ))
 
     await db.commit()
@@ -165,6 +168,8 @@ async def update_receipt(
     receipt = result.scalar_one_or_none()
     if not receipt:
         raise HTTPException(status_code=404, detail="سجل الاستلام غير موجود")
+
+    check_write_permission(user, receipt.receipt_date)
 
     if body.supplier_id is not None:
         supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
@@ -192,6 +197,7 @@ async def update_receipt(
                 quantity=item.quantity,
                 unit_price=item.unit_price,
                 total=t,
+                remaining=item.remaining,
             ))
             new_total += t
         receipt.total_amount = new_total
@@ -209,6 +215,8 @@ async def delete_receipt(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_delete_permission(user)
+
     result = await db.execute(
         select(GoodsReceipt).where(GoodsReceipt.id == receipt_id)
     )

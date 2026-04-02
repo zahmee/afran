@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -51,6 +52,7 @@ export interface Supplier {
 })
 export class Suppliers implements OnInit {
   private http = inject(HttpClient);
+  protected readonly auth = inject(AuthService);
   private dialogService = inject(DialogService);
   private messageService = inject(MessageService);
   private ref?: DynamicDialogRef;

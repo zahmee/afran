@@ -32,6 +32,7 @@ interface GoodsReceiptItem {
   quantity: number;
   unit_price: number;
   total: number;
+  remaining: number;
 }
 
 interface GoodsReceipt {
@@ -80,6 +81,7 @@ export class ReceiptEdit implements OnInit {
         this.fb.group({
           quantity: this.fb.control<number | null>(null),
           unit_price: this.fb.control<number | null>(null),
+          remaining: this.fb.control<number | null>(null),
         })
       )
     ),
@@ -148,6 +150,7 @@ export class ReceiptEdit implements OnInit {
         this.itemsArray.at(i).patchValue({
           quantity: Number(item.quantity),
           unit_price: Number(item.unit_price),
+          remaining: Number(item.remaining),
         });
       }
     });
@@ -171,6 +174,7 @@ export class ReceiptEdit implements OnInit {
         quantity: Number(r!.quantity),
         unit_price: Number(r!.unit_price),
         total: Number(r!.quantity) * Number(r!.unit_price),
+        remaining: Math.floor(Number(r!.remaining) || 0),
       }));
 
     if (!filledItems.length) {

@@ -10,6 +10,7 @@ class GoodsReceiptItemCreate(BaseModel):
     quantity: Decimal
     unit_price: Decimal
     total: Decimal
+    remaining: int
 
     @field_validator("quantity")
     @classmethod
@@ -25,12 +26,20 @@ class GoodsReceiptItemCreate(BaseModel):
             raise ValueError("المبلغ يجب أن يكون أكبر من صفر")
         return v
 
+    @field_validator("remaining")
+    @classmethod
+    def remaining_non_negative(cls, v: int) -> int:
+        if v < 0:
+            raise ValueError("الباقي يجب أن يكون صفر أو أكبر")
+        return v
+
 
 class GoodsReceiptItemResponse(BaseModel):
     id: int
     quantity: Decimal
     unit_price: Decimal
     total: Decimal
+    remaining: int
 
     model_config = {"from_attributes": True}
 

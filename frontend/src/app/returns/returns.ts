@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -60,6 +61,7 @@ function buildDayOptions(): SelectOption[] {
 })
 export class Returns implements OnInit, OnDestroy {
   private http = inject(HttpClient);
+  protected readonly auth = inject(AuthService);
   private router = inject(Router);
   private messageService = inject(MessageService);
   private searchSubject = new Subject<void>();

@@ -4,7 +4,9 @@
       <h1 class="page-title">الموردين</h1>
       <p class="page-subtitle">إدارة الموردين وأنواعهم</p>
     </div>
-    <p-button label="إضافة مورد" icon="pi pi-plus" (onClick)="openDialog()" />
+    @if (auth.canAdd()) {
+      <p-button label="إضافة مورد" icon="pi pi-plus" (onClick)="openDialog()" />
+    }
   </div>
 
   @if (loading()) {
@@ -15,7 +17,9 @@
     <div class="empty-state">
       <i class="pi pi-users empty-icon"></i>
       <p>لا يوجد موردين حالياً</p>
-      <p-button label="إضافة أول مورد" icon="pi pi-plus" (onClick)="openDialog()" severity="secondary" />
+      @if (auth.canAdd()) {
+        <p-button label="إضافة أول مورد" icon="pi pi-plus" (onClick)="openDialog()" severity="secondary" />
+      }
     </div>
   } @else {
     <div class="table-wrapper">
@@ -43,15 +47,20 @@
             <td>{{ s.opening_balance }}</td>
             <td><span class="deal-terms">{{ s.deal_terms ?? '—' }}</span></td>
             <td>
-              <p-toggleswitch [(ngModel)]="s.is_active" (onChange)="toggleActive(s, $event.checked)" />
+              <p-toggleswitch [(ngModel)]="s.is_active" (onChange)="toggleActive(s, $event.checked)"
+                              [disabled]="!auth.canAdd()" />
             </td>
             <td>{{ s.created_at | date:'yyyy/MM/dd' }}</td>
             <td>
               <div class="row-actions">
-                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small"
-                          (onClick)="openDialog(s)" pTooltip="تعديل" />
-                <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small"
-                          severity="danger" (onClick)="deleteSupplier(s)" pTooltip="حذف" />
+                @if (auth.canAdd()) {
+                  <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small"
+                            (onClick)="openDialog(s)" pTooltip="تعديل" />
+                }
+                @if (auth.isAdmin()) {
+                  <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small"
+                            severity="danger" (onClick)="deleteSupplier(s)" pTooltip="حذف" />
+                }
               </div>
             </td>
           </tr>

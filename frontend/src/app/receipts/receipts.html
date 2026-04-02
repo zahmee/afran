@@ -6,11 +6,9 @@
         @if (!loading()) { {{ total() }} سجل إجمالي }
       </p>
     </div>
-    <p-button
-      label="استلام بضاعة"
-      icon="pi pi-plus"
-      (onClick)="newReceipt()"
-    />
+    @if (auth.canAdd()) {
+      <p-button label="استلام بضاعة" icon="pi pi-plus" (onClick)="newReceipt()" />
+    }
   </div>
 
   <!-- فلاتر البحث -->
@@ -115,29 +113,21 @@
               <td class="col-count">{{ r.items_count }}</td>
               <td class="col-total">{{ r.total_amount | number:'1.2-2' }}</td>
               <td class="col-actions">
-                <button
-                  class="action-btn edit-btn"
-                  (click)="editReceipt(r.id)"
-                  pTooltip="تعديل"
-                  tooltipPosition="top"
-                  aria-label="تعديل الاستلام"
-                >
-                  <i class="pi pi-pencil"></i>
-                </button>
-                <button
-                  class="action-btn delete-btn"
-                  (click)="deleteReceipt(r)"
-                  [disabled]="deletingId() === r.id"
-                  pTooltip="حذف"
-                  tooltipPosition="top"
-                  aria-label="حذف الاستلام"
-                >
-                  <i class="pi"
-                    [class.pi-trash]="deletingId() !== r.id"
-                    [class.pi-spinner]="deletingId() === r.id"
-                    [class.pi-spin]="deletingId() === r.id"
-                  ></i>
-                </button>
+                @if (auth.canEdit(r.receipt_date)) {
+                  <button class="action-btn edit-btn" (click)="editReceipt(r.id)"
+                    pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل الاستلام">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                }
+                @if (auth.canDelete()) {
+                  <button class="action-btn delete-btn" (click)="deleteReceipt(r)"
+                    [disabled]="deletingId() === r.id" pTooltip="حذف" tooltipPosition="top" aria-label="حذف الاستلام">
+                    <i class="pi"
+                      [class.pi-trash]="deletingId() !== r.id"
+                      [class.pi-spinner]="deletingId() === r.id"
+                      [class.pi-spin]="deletingId() === r.id"></i>
+                  </button>
+                }
               </td>
             </tr>
 
@@ -153,6 +143,7 @@
                           <th>العدد</th>
                           <th>المبلغ (ر.س)</th>
                           <th>الإجمالي (ر.س)</th>
+                          <th>الباقي</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -162,12 +153,13 @@
                             <td>{{ item.quantity | number:'1.0-2' }}</td>
                             <td>{{ item.unit_price | number:'1.2-2' }}</td>
                             <td class="item-total">{{ item.total | number:'1.2-2' }}</td>
+                            <td>{{ item.remaining }}</td>
                           </tr>
                         }
                       </tbody>
                       <tfoot>
                         <tr class="items-footer">
-                          <td colspan="3" class="items-footer-label">المجموع</td>
+                          <td colspan="4" class="items-footer-label">المجموع</td>
                           <td class="items-footer-total">{{ r.total_amount | number:'1.2-2' }}</td>
                         </tr>
                       </tfoot>

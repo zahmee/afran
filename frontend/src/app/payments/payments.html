@@ -6,11 +6,9 @@
         @if (!loading()) { {{ total() }} سجل إجمالي }
       </p>
     </div>
-    <p-button
-      label="إضافة سداد"
-      icon="pi pi-plus"
-      (onClick)="openDialog()"
-    />
+    @if (auth.canAdd()) {
+      <p-button label="إضافة سداد" icon="pi pi-plus" (onClick)="openDialog()" />
+    }
   </div>
 
   <!-- فلاتر البحث -->
@@ -99,29 +97,21 @@
               <td class="col-time">{{ p.payment_time }}</td>
               <td class="col-amount">{{ p.amount | number:'1.2-2' }}</td>
               <td class="col-actions">
-                <button
-                  class="action-btn edit-btn"
-                  (click)="openDialog(p)"
-                  pTooltip="تعديل"
-                  tooltipPosition="top"
-                  aria-label="تعديل السداد"
-                >
-                  <i class="pi pi-pencil"></i>
-                </button>
-                <button
-                  class="action-btn delete-btn"
-                  (click)="deletePayment(p)"
-                  [disabled]="deletingId() === p.id"
-                  pTooltip="حذف"
-                  tooltipPosition="top"
-                  aria-label="حذف السداد"
-                >
-                  <i class="pi"
-                    [class.pi-trash]="deletingId() !== p.id"
-                    [class.pi-spinner]="deletingId() === p.id"
-                    [class.pi-spin]="deletingId() === p.id"
-                  ></i>
-                </button>
+                @if (auth.canEdit(p.payment_date)) {
+                  <button class="action-btn edit-btn" (click)="openDialog(p)"
+                    pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل السداد">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                }
+                @if (auth.canDelete()) {
+                  <button class="action-btn delete-btn" (click)="deletePayment(p)"
+                    [disabled]="deletingId() === p.id" pTooltip="حذف" tooltipPosition="top" aria-label="حذف السداد">
+                    <i class="pi"
+                      [class.pi-trash]="deletingId() !== p.id"
+                      [class.pi-spinner]="deletingId() === p.id"
+                      [class.pi-spin]="deletingId() === p.id"></i>
+                  </button>
+                }
               </td>
             </tr>
           }

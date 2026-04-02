@@ -31,6 +31,26 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => !!this._token());
   readonly token = this._token.asReadonly();
+  readonly isAdmin = computed(() => this.user()?.role === 'admin');
+
+  canEdit(dateStr: string): boolean {
+    const role = this.user()?.role;
+    if (role === 'admin') return true;
+    if (role === 'data_entry') {
+      const today = new Date().toISOString().slice(0, 10);
+      return dateStr === today;
+    }
+    return false;
+  }
+
+  canDelete(): boolean {
+    return this.user()?.role === 'admin';
+  }
+
+  canAdd(): boolean {
+    const role = this.user()?.role;
+    return role === 'admin' || role === 'data_entry';
+  }
 
   /**
    * Ensures user data is loaded. Returns immediately if already loaded.

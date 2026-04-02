@@ -43,13 +43,16 @@ const API = 'http://localhost:8011';
         </div>
 
         <div class="field">
-          <label for="password">كلمة مرور جديدة</label>
+          <label for="password">{{ isCreate ? 'كلمة المرور' : 'كلمة مرور جديدة' }}</label>
           <p-password id="password" formControlName="password"
                       [feedback]="false" [toggleMask]="true"
-                      placeholder="اتركه فارغاً للإبقاء"
+                      [placeholder]="isCreate ? '' : 'اتركه فارغاً للإبقاء'"
                       styleClass="full-width" />
           @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
             <small class="field-error">6 أحرف على الأقل</small>
+          }
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <small class="field-error">كلمة المرور مطلوبة</small>
           }
         </div>
 
@@ -57,7 +60,7 @@ const API = 'http://localhost:8011';
           <label for="role">الصلاحية</label>
           <p-select id="role" formControlName="role"
                     [options]="roles" optionLabel="label" optionValue="value"
-                    styleClass="w-full" />
+                    styleClass="w-full" appendTo="body" />
         </div>
 
         @if (error()) {
@@ -68,8 +71,8 @@ const API = 'http://localhost:8011';
         }
 
         <div class="dialog-actions">
-          <p-button label="إلغاء" severity="secondary" [text]="true" (onClick)="ref.close()" />
-          <p-button type="submit" label="حفظ التعديلات" icon="pi pi-check"
+          <p-button label="إلغاء" severity="secondary" [text]="true" (onClick)="ref.close()" type="button" />
+          <p-button type="submit" [label]="isCreate ? 'إضافة' : 'حفظ التعديلات'" icon="pi pi-check"
                     [loading]="saving()" [disabled]="form.invalid" />
         </div>
       </form>
@@ -105,11 +108,12 @@ const API = 'http://localhost:8011';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditUserDialog {
-  private data: User = inject(DynamicDialogConfig).data;
+  private data: User | null = inject(DynamicDialogConfig).data;
   protected readonly ref = inject(DynamicDialogRef);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
 
+  protected readonly isCreate = !this.data?.id;
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly roles = [
@@ -119,31 +123,42 @@ export class EditUserDialog {
   ];
 
   protected readonly form = this.fb.nonNullable.group({
-    full_name: [this.data.full_name, Validators.required],
-    username: [this.data.username, [Validators.required, Validators.minLength(3)]],
-    password: ['', Validators.minLength(6)],
-    role: [this.data.role, Validators.required],
+    full_name: [this.data?.full_name ?? '', Validators.required],
+    username: [this.data?.username ?? '', [Validators.required, Validators.minLength(3)]],
+    password: ['', this.isCreate ? [Validators.required, Validators.minLength(6)] : Validators.minLength(6)],
+    role: [this.data?.role ?? 'data_entry', Validators.required],
   });
 
   protected async save() {
     if (this.form.invalid) return;
-
     this.saving.set(true);
     this.error.set(null);
 
     const raw = this.form.getRawValue();
-    const body: Record<string, string> = {
-      full_name: raw.full_name,
-      username: raw.username,
-      role: raw.role,
-    };
-    if (raw.password) body['password'] = raw.password;
 
     try {
-      const updated = await firstValueFrom(
-        this.http.patch<User>(`${API}/auth/users/${this.data.id}`, body)
-      );
-      this.ref.close(updated);
+      if (this.isCreate) {
+        const created = await firstValueFrom(
+          this.http.post<User>(`${API}/auth/users`, {
+            full_name: raw.full_name,
+            username: raw.username,
+            password: raw.password,
+            role: raw.role,
+          })
+        );
+        this.ref.close(created);
+      } else {
+        const body: Record<string, string> = {
+          full_name: raw.full_name,
+          username: raw.username,
+          role: raw.role,
+        };
+        if (raw.password) body['password'] = raw.password;
+        const updated = await firstValueFrom(
+          this.http.patch<User>(`${API}/auth/users/${this.data!.id}`, body)
+        );
+        this.ref.close(updated);
+      }
     } catch (e: any) {
       const detail = e?.error?.detail;
       this.error.set(typeof detail === 'string' ? detail : 'حدث خطأ في الحفظ');

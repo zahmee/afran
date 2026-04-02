@@ -87,6 +87,27 @@ export class Users implements OnInit {
     });
   }
 
+  protected openAdd() {
+    this.ref = this.dialogService.open(EditUserDialog, {
+      header: 'إضافة مستخدم',
+      width: '440px',
+      modal: true,
+      data: null,
+    });
+
+    this.ref.onClose.subscribe((result: User | undefined) => {
+      if (result) {
+        this.users.update(list => [result, ...list]);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'تم الإضافة',
+          detail: result.full_name,
+          life: 3000,
+        });
+      }
+    });
+  }
+
   protected openEdit(user: User) {
     this.ref = this.dialogService.open(EditUserDialog, {
       header: 'تعديل المستخدم',

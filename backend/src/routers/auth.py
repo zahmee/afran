@@ -14,6 +14,7 @@ from src.auth.auth import (
 from src.database.db import get_db
 from src.database.models import Payment, Supplier, User
 from src.models.auth import (
+    CreateUserRequest,
     LoginRequest,
     RegisterRequest,
     TokenResponse,
@@ -67,6 +68,32 @@ async def get_me(user: CurrentUser):
 
 
 # ─── إدارة المستخدمين (للمدير فقط) ────────────────────
+
+@router.post("/users", response_model=UserResponse, status_code=201)
+async def create_user(
+    body: CreateUserRequest,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
+):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="غير مصرح لك")
+
+    dup = await db.execute(select(User).where(User.username == body.username))
+    if dup.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="اسم المستخدم مسجل مسبقاً")
+
+    new_user = User(
+        username=body.username.strip(),
+        password_hash=hash_password(body.password),
+        full_name=body.full_name.strip(),
+        role=body.role,
+        is_active=body.is_active,
+    )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    return new_user
+
 
 @router.get("/users", response_model=list[UserResponse])
 async def list_users(user: CurrentUser, db: AsyncSession = Depends(get_db)):

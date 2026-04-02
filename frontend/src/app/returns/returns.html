@@ -4,7 +4,9 @@
       <h1 class="page-title">المرتجعات</h1>
       <p class="page-subtitle">@if (!loading()) { {{ total() }} سجل إجمالي }</p>
     </div>
-    <p-button label="تسجيل مرتجع" icon="pi pi-plus" (onClick)="newReturn()" />
+    @if (auth.canAdd()) {
+      <p-button label="تسجيل مرتجع" icon="pi pi-plus" (onClick)="newReturn()" />
+    }
   </div>
 
   <!-- فلاتر -->
@@ -63,17 +65,21 @@
               <td class="col-count">{{ r.items_count }}</td>
               <td class="col-total">{{ r.total_amount | number:'1.2-2' }}</td>
               <td class="col-actions">
-                <button class="action-btn edit-btn" (click)="editReturn(r.id)"
-                  pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل المرتجع">
-                  <i class="pi pi-pencil"></i>
-                </button>
-                <button class="action-btn delete-btn" (click)="deleteReturn(r)"
-                  [disabled]="deletingId() === r.id" pTooltip="حذف" tooltipPosition="top" aria-label="حذف المرتجع">
-                  <i class="pi"
-                    [class.pi-trash]="deletingId() !== r.id"
-                    [class.pi-spinner]="deletingId() === r.id"
-                    [class.pi-spin]="deletingId() === r.id"></i>
-                </button>
+                @if (auth.canEdit(r.return_date)) {
+                  <button class="action-btn edit-btn" (click)="editReturn(r.id)"
+                    pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل المرتجع">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                }
+                @if (auth.canDelete()) {
+                  <button class="action-btn delete-btn" (click)="deleteReturn(r)"
+                    [disabled]="deletingId() === r.id" pTooltip="حذف" tooltipPosition="top" aria-label="حذف المرتجع">
+                    <i class="pi"
+                      [class.pi-trash]="deletingId() !== r.id"
+                      [class.pi-spinner]="deletingId() === r.id"
+                      [class.pi-spin]="deletingId() === r.id"></i>
+                  </button>
+                }
               </td>
             </tr>
 

@@ -6,9 +6,9 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser
+from src.auth.auth import CurrentUser, check_delete_permission, check_write_permission
 from src.database.db import get_db
-from src.database.models import GoodsReceipt, Payment, Supplier, SupplierReturn
+from src.database.models import GoodsReceipt, GoodsReceiptItem, Payment, Supplier, SupplierReturn
 from src.models.payment import (
     PaginatedPaymentResponse,
     PaymentCreate,
@@ -114,11 +114,26 @@ async def calculate_balance(
         .where(Payment.supplier_id == supplier_id)
     )) or Decimal("0")
 
+    remaining_deduction: Decimal = (await db.scalar(
+        select(func.coalesce(
+            func.sum(GoodsReceiptItem.remaining * GoodsReceiptItem.unit_price),
+            Decimal("0"),
+        ))
+        .join(GoodsReceipt, GoodsReceiptItem.receipt_id == GoodsReceipt.id)
+        .where(GoodsReceipt.supplier_id == supplier_id)
+        .where(GoodsReceiptItem.remaining > 0)
+    )) or Decimal("0")
+
     net_goods = total_goods - total_returns
     opening_balance = supplier.opening_balance
     sales_rate = supplier.sales_rate
 
-    suggested = opening_balance + net_goods * (1 - sales_rate / Decimal("100")) - total_paid
+    net_after_remaining = net_goods - remaining_deduction
+    suggested = (
+        opening_balance
+        + net_after_remaining * (1 - sales_rate / Decimal("100"))
+        - total_paid
+    )
 
     return SupplierBalanceResponse(
         supplier_id=supplier.id,
@@ -129,6 +144,8 @@ async def calculate_balance(
         net_goods_received=net_goods,
         sales_rate=sales_rate,
         total_already_paid=total_paid,
+        remaining_deduction=remaining_deduction,
+        net_after_remaining=net_after_remaining,
         suggested_amount=suggested,
     )
 
@@ -160,6 +177,8 @@ async def create_payment(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_write_permission(user, body.payment_date)
+
     result = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
     if not result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="المورد غير موجود")
@@ -196,6 +215,8 @@ async def update_payment(
     if not payment:
         raise HTTPException(status_code=404, detail="سجل السداد غير موجود")
 
+    check_write_permission(user, payment.payment_date)
+
     if body.supplier_id is not None:
         s = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))
         if not s.scalar_one_or_none():
@@ -223,6 +244,8 @@ async def delete_payment(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_delete_permission(user)
+
     result = await db.execute(select(Payment).where(Payment.id == payment_id))
     payment = result.scalar_one_or_none()
     if not payment:

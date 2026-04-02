@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { AuthService } from '../auth/auth.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom, Subject } from 'rxjs';
@@ -90,6 +91,7 @@ function buildDayOptions(): SelectOption[] {
 export class Payments implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly messageService = inject(MessageService);
+  protected readonly auth = inject(AuthService);
   private readonly dialogService = inject(DialogService);
   private readonly searchSubject = new Subject<void>();
   private ref: DynamicDialogRef | undefined;

@@ -220,6 +220,10 @@ class GoodsReceiptItem(Base):
     quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     total: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    remaining: Mapped[int] = mapped_column(
+        default=0,
+        comment="الباقي (عدد صحيح) — يجب أن يكون صفر أو أكبر",
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     receipt: Mapped["GoodsReceipt"] = relationship(back_populates="items")

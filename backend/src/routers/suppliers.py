@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser
+from src.auth.auth import CurrentUser, check_admin_permission, check_not_reports
 from src.database.db import get_db
 from src.database.models import Supplier, SupplierType
 from src.models.supplier import (
@@ -33,6 +33,8 @@ async def create_type(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_admin_permission(user)
+
     dup = await db.execute(select(SupplierType).where(SupplierType.name == body.name))
     if dup.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="نوع المورد موجود مسبقاً")
@@ -51,6 +53,8 @@ async def update_type(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_admin_permission(user)
+
     result = await db.execute(select(SupplierType).where(SupplierType.id == type_id))
     st = result.scalar_one_or_none()
     if not st:
@@ -74,6 +78,8 @@ async def delete_type(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_admin_permission(user)
+
     result = await db.execute(select(SupplierType).where(SupplierType.id == type_id))
     st = result.scalar_one_or_none()
     if not st:
@@ -120,6 +126,8 @@ async def create_supplier(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_not_reports(user)
+
     # Verify type exists
     t = await db.execute(select(SupplierType).where(SupplierType.id == body.type_id))
     if not t.scalar_one_or_none():
@@ -173,6 +181,8 @@ async def update_supplier(
     if not supplier:
         raise HTTPException(status_code=404, detail="المورد غير موجود")
 
+    check_not_reports(user)
+
     if body.name is not None:
         supplier.name = body.name
     if body.type_id is not None:
@@ -202,6 +212,8 @@ async def delete_supplier(
     user: CurrentUser,
     db: AsyncSession = Depends(get_db),
 ):
+    check_admin_permission(user)
+
     result = await db.execute(select(Supplier).where(Supplier.id == supplier_id))
     supplier = result.scalar_one_or_none()
     if not supplier:

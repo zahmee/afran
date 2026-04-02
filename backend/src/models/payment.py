@@ -92,4 +92,6 @@ class SupplierBalanceResponse(BaseModel):
     net_goods_received: Decimal
     sales_rate: Decimal
     total_already_paid: Decimal
+    remaining_deduction: Decimal
+    net_after_remaining: Decimal
     suggested_amount: Decimal

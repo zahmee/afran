@@ -54,7 +54,6 @@ export class App {
     { label: 'الرئيسية', icon: 'pi-home', route: '/dashboard' },
     { label: 'البضاعة المستلمة', icon: 'pi-shopping-cart', route: '/receipts' },
     { label: 'الموردين', icon: 'pi-users', route: '/suppliers' },
-    { label: 'المنتجات', icon: 'pi-box', route: '/products' },
     { label: 'المرتجعات', icon: 'pi-undo', route: '/returns' },
     { label: 'السدادات', icon: 'pi-wallet', route: '/payments' },
   ];

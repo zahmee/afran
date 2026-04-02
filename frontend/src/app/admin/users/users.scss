@@ -4,6 +4,9 @@
 }
 
 .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 24px;
 }
 
@@ -180,10 +183,33 @@
   flex-shrink: 0;
 }
 
-::ng-deep .role-select {
-  font-size: 0.82rem !important;
-  border-radius: 8px !important;
-  min-width: 140px;
+.role-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  &.role-admin {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  &.role-data_entry {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  &.role-reports {
+    background: #f1f5f9;
+    color: #475569;
+  }
+}
+
+:host-context(html.dark-mode) .role-badge {
+  &.role-admin       { background: rgba(37, 99, 235, 0.2); color: #93c5fd; }
+  &.role-data_entry  { background: rgba(180, 83, 9, 0.2);  color: #fcd34d; }
+  &.role-reports     { background: rgba(71, 85, 105, 0.2); color: #94a3b8; }
 }
 
 .toggle-wrap {

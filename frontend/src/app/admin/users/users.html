@@ -4,6 +4,7 @@
       <h1 class="page-title">إدارة المستخدمين</h1>
       <span class="count-badge">{{ users().length }} مستخدم</span>
     </div>
+    <p-button label="إضافة مستخدم" icon="pi pi-plus" (onClick)="openAdd()" />
   </div>
 
   @if (loading()) {
@@ -48,10 +49,7 @@
           <div class="user-card-body">
             <div class="meta-item">
               <span class="meta-label">الصلاحية</span>
-              <p-select [options]="roles" optionLabel="label" optionValue="value"
-                        [(ngModel)]="user.role"
-                        (onChange)="changeRole(user, $event.value)"
-                        styleClass="role-select" />
+              <span class="role-badge role-{{ user.role }}">{{ getRoleLabel(user.role) }}</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">الحالة</span>
