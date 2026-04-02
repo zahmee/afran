@@ -17,13 +17,9 @@ from src.database.db import Base
 
 
 class UserRole(str, PyEnum):
-    ADMIN = "admin"
-    USER = "user"
-
-
-class SupplierType(str, PyEnum):
-    FAMILY = "family"       # أسرة منتجة
-    COMPANY = "company"     # شركة
+    ADMIN = "admin"           # مدير النظام
+    DATA_ENTRY = "data_entry" # مدخل بيانات
+    REPORTS = "reports"       # تقارير
 
 
 def _utcnow() -> datetime:
@@ -38,27 +34,45 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(200))
-    role: Mapped[str] = mapped_column(String(20), default=UserRole.USER)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    role: Mapped[str] = mapped_column(String(20), default=UserRole.DATA_ENTRY)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)  # غير فعال حتى يفعّله المدير
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
 
-# ─── Supplier (أسرة / شركة) ────────────────────────────
+# ─── SupplierType (نوع المورد) ─────────────────────────
+class SupplierType(Base):
+    __tablename__ = "supplier_types"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    suppliers: Mapped[list["Supplier"]] = relationship(back_populates="type_rel")
+
+
+# ─── Supplier (مورد) ──────────────────────────────────
 class Supplier(Base):
     __tablename__ = "suppliers"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
-    supplier_type: Mapped[str] = mapped_column(String(20))  # family | company
-    commission_rate: Mapped[Decimal] = mapped_column(
-        Numeric(5, 2), default=Decimal("15.00"),
-        comment="نسبة العمولة — 15% للأسر افتراضياً",
+    type_id: Mapped[int] = mapped_column(ForeignKey("supplier_types.id"))
+    sales_rate: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), default=Decimal("0"),
+        comment="نسبة المبيعات — رقم من 0 إلى أقل من 100",
     )
-    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    opening_balance: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), default=Decimal("0"),
+        comment="الرصيد الافتتاحي",
+    )
+    deal_terms: Mapped[str | None] = mapped_column(
+        Text, nullable=True,
+        comment="نوع التعامل — نص حر متعدد الأسطر",
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
+    type_rel: Mapped["SupplierType"] = relationship(back_populates="suppliers")
     products: Mapped[list["Product"]] = relationship(back_populates="supplier")
     payments: Mapped[list["Payment"]] = relationship(back_populates="supplier")
 

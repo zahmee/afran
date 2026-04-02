@@ -1,7 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 export interface User {
@@ -26,23 +25,28 @@ export class AuthService {
 
   private readonly _user = signal<User | null>(null);
   private readonly _token = signal<string | null>(localStorage.getItem('token'));
+  private _userLoaded = false;
+  private _loadingPromise: Promise<void> | null = null;
 
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => !!this._token());
   readonly token = this._token.asReadonly();
 
-  async login(username: string, password: string): Promise<void> {
-    const res = await firstValueFrom(
-      this.http.post<TokenResponse>(`${API}/auth/login`, { username, password })
-    );
-    this._token.set(res.access_token);
-    localStorage.setItem('token', res.access_token);
-    await this.loadUser();
-    this.router.navigate(['/dashboard']);
+  /**
+   * Ensures user data is loaded. Returns immediately if already loaded.
+   * Safe to call multiple times — only one HTTP request will be made.
+   */
+  ensureUser(): Promise<void> {
+    if (this._userLoaded || !this._token()) {
+      return Promise.resolve();
+    }
+    if (!this._loadingPromise) {
+      this._loadingPromise = this._fetchUser();
+    }
+    return this._loadingPromise;
   }
 
-  async loadUser(): Promise<void> {
-    if (!this._token()) return;
+  private async _fetchUser(): Promise<void> {
     try {
       const user = await firstValueFrom(
         this.http.get<User>(`${API}/auth/me`, {
@@ -50,14 +54,32 @@ export class AuthService {
         })
       );
       this._user.set(user);
-    } catch {
-      this.logout();
+      this._userLoaded = true;
+    } catch (e: any) {
+      const status = e?.status;
+      if (status === 401 || status === 403) {
+        this.logout();
+      }
+    } finally {
+      this._loadingPromise = null;
     }
+  }
+
+  async login(username: string, password: string): Promise<void> {
+    const res = await firstValueFrom(
+      this.http.post<TokenResponse>(`${API}/auth/login`, { username, password })
+    );
+    this._token.set(res.access_token);
+    localStorage.setItem('token', res.access_token);
+    this._userLoaded = false;
+    await this.ensureUser();
+    this.router.navigate(['/dashboard']);
   }
 
   logout(): void {
     this._token.set(null);
     this._user.set(null);
+    this._userLoaded = false;
     localStorage.removeItem('token');
     this.router.navigate(['/login']);
   }

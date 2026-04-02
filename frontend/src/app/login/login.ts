@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
+import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,7 @@ import { AuthService } from '../auth/auth.service';
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    MatCardModule,
+    RouterLink,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,

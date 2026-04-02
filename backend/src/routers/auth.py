@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.auth import (
@@ -10,7 +10,13 @@ from src.auth.auth import (
 )
 from src.database.db import get_db
 from src.database.models import User
-from src.models.auth import LoginRequest, TokenResponse, UserResponse
+from src.models.auth import (
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UpdateUserRequest,
+    UserResponse,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,11 +34,28 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="الحساب معطل",
+            detail="الحساب غير مفعّل — يرجى التواصل مع المدير",
         )
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return TokenResponse(access_token=token)
+
+
+@router.post("/register", response_model=UserResponse, status_code=201)
+async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.username == body.username))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="اسم المستخدم مسجل مسبقاً")
+
+    user = User(
+        username=body.username.strip(),
+        password_hash=hash_password(body.password),
+        full_name=body.full_name.strip(),
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
 
 
 @router.get("/me", response_model=UserResponse)
@@ -40,9 +63,75 @@ async def get_me(user: CurrentUser):
     return user
 
 
+# ─── إدارة المستخدمين (للمدير فقط) ────────────────────
+
+@router.get("/users", response_model=list[UserResponse])
+async def list_users(user: CurrentUser, db: AsyncSession = Depends(get_db)):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="غير مصرح لك")
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    return result.scalars().all()
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse)
+async def update_user(
+    user_id: int,
+    body: UpdateUserRequest,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
+):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="غير مصرح لك")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+
+    if body.full_name is not None:
+        target.full_name = body.full_name.strip()
+    if body.username is not None:
+        dup = await db.execute(
+            select(User).where(User.username == body.username, User.id != user_id)
+        )
+        if dup.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="اسم المستخدم مسجل مسبقاً")
+        target.username = body.username.strip()
+    if body.password is not None:
+        target.password_hash = hash_password(body.password)
+    if body.role is not None:
+        target.role = body.role
+    if body.is_active is not None:
+        target.is_active = body.is_active
+
+    await db.commit()
+    await db.refresh(target)
+    return target
+
+
+@router.delete("/users/{user_id}", status_code=204)
+async def delete_user(
+    user_id: int,
+    user: CurrentUser,
+    db: AsyncSession = Depends(get_db),
+):
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="غير مصرح لك")
+    if user.id == user_id:
+        raise HTTPException(status_code=400, detail="لا يمكنك حذف حسابك")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+
+    await db.delete(target)
+    await db.commit()
+
+
 @router.post("/seed", response_model=UserResponse, include_in_schema=False)
 async def seed_admin(db: AsyncSession = Depends(get_db)):
-    """Create default admin user if none exists. Remove in production."""
+    """Create default admin user if none exists."""
     result = await db.execute(select(User).where(User.username == "admin"))
     existing = result.scalar_one_or_none()
     if existing:
@@ -53,6 +142,7 @@ async def seed_admin(db: AsyncSession = Depends(get_db)):
         password_hash=hash_password("admin123"),
         full_name="مدير النظام",
         role="admin",
+        is_active=True,
     )
     db.add(admin)
     await db.commit()

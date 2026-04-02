@@ -1,0 +1,85 @@
+<div class="page">
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">أنواع الموردين</h1>
+      <span class="count-badge">{{ types().length }} نوع</span>
+    </div>
+  </div>
+
+  <!-- Add new type -->
+  <div class="add-card">
+    <form [formGroup]="addForm" (ngSubmit)="addType()" class="add-form">
+      <mat-form-field appearance="outline" class="add-input">
+        <mat-label>اسم النوع الجديد</mat-label>
+        <input matInput formControlName="name" placeholder="مثال: أسر منتجة">
+      </mat-form-field>
+      <button mat-flat-button type="submit" class="add-btn"
+              [disabled]="addForm.invalid || saving()">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        إضافة
+      </button>
+    </form>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="types-list">
+      @for (type of types(); track type.id) {
+        <div class="type-card">
+          <!-- Delete overlay -->
+          @if (deleteConfirmId() === type.id) {
+            <div class="delete-overlay">
+              <mat-icon class="material-symbols-outlined delete-warn-icon">warning</mat-icon>
+              <p>هل تريد حذف "{{ type.name }}"؟</p>
+              <div class="delete-actions">
+                <button mat-flat-button class="delete-confirm-btn" (click)="executeDelete(type)">حذف</button>
+                <button mat-button class="delete-cancel-btn" (click)="cancelDelete()">إلغاء</button>
+              </div>
+            </div>
+          }
+
+          @if (editingId() === type.id) {
+            <!-- Edit mode -->
+            <form [formGroup]="editForm" (ngSubmit)="saveEdit(type)" class="edit-row">
+              <mat-form-field appearance="outline" class="edit-input">
+                <input matInput formControlName="name">
+              </mat-form-field>
+              <button mat-icon-button type="submit" [disabled]="editForm.invalid || saving()"
+                      class="save-btn" aria-label="حفظ">
+                <mat-icon class="material-symbols-outlined">check</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (click)="cancelEdit()"
+                      aria-label="إلغاء">
+                <mat-icon class="material-symbols-outlined">close</mat-icon>
+              </button>
+            </form>
+          } @else {
+            <!-- Display mode -->
+            <div class="type-row">
+              <div class="type-icon">
+                <mat-icon class="material-symbols-outlined">category</mat-icon>
+              </div>
+              <span class="type-name">{{ type.name }}</span>
+              <div class="type-actions">
+                <button mat-icon-button (click)="startEdit(type)" aria-label="تعديل">
+                  <mat-icon class="material-symbols-outlined">edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="confirmDelete(type)" aria-label="حذف" class="delete-btn">
+                  <mat-icon class="material-symbols-outlined">delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon class="material-symbols-outlined empty-icon">category</mat-icon>
+          <p>لا توجد أنواع موردين بعد</p>
+        </div>
+      }
+    </div>
+  }
+</div>

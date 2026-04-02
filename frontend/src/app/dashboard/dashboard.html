@@ -1,19 +1,45 @@
 <div class="dashboard">
-  <h1 class="welcome">
-    مرحباً {{ auth.user()?.full_name ?? '' }}
-  </h1>
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-content">
+      <h1 class="welcome-title">مرحباً، {{ auth.user()?.full_name ?? '' }}</h1>
+      <p class="welcome-text">إليك ملخص نشاط المحل اليوم</p>
+    </div>
+    <div class="welcome-art">
+      <mat-icon class="material-symbols-outlined art-icon">storefront</mat-icon>
+    </div>
+  </div>
 
-  <div class="cards-grid">
-    @for (card of cards; track card.title) {
-      <mat-card class="stat-card">
-        <div class="card-icon" [style.background-color]="card.color">
-          <mat-icon>{{ card.icon }}</mat-icon>
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    @for (stat of stats; track stat.title) {
+      <div class="stat-card">
+        <div class="stat-icon-wrap" [class]="'stat-icon-wrap ' + stat.gradient">
+          <mat-icon class="material-symbols-outlined">{{ stat.icon }}</mat-icon>
         </div>
-        <div class="card-info">
-          <span class="card-title">{{ card.title }}</span>
-          <span class="card-value">{{ card.value }}</span>
+        <div class="stat-body">
+          <span class="stat-title">{{ stat.title }}</span>
+          <div class="stat-value-row">
+            <span class="stat-value">{{ stat.value }}</span>
+            <span class="stat-unit">{{ stat.unit }}</span>
+          </div>
         </div>
-      </mat-card>
+      </div>
     }
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <h2 class="section-title">إجراءات سريعة</h2>
+    <div class="actions-grid">
+      @for (action of quickActions; track action.label) {
+        <a class="action-card" [href]="action.route">
+          <div class="action-icon">
+            <mat-icon class="material-symbols-outlined">{{ action.icon }}</mat-icon>
+          </div>
+          <span class="action-label">{{ action.label }}</span>
+        </a>
+      }
+    </div>
   </div>
 </div>

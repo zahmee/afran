@@ -1,26 +1,30 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
 from src.database.db import get_db
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ph = PasswordHasher()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return ph.hash(password)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    try:
+        return ph.verify(hashed, plain)
+    except VerifyMismatchError:
+        return False
 
 
 def create_access_token(data: dict) -> str:
@@ -43,9 +47,10 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-        user_id: int | None = payload.get("sub")
-        if user_id is None:
+        sub: str | None = payload.get("sub")
+        if sub is None:
             raise credentials_exception
+        user_id = int(sub)
     except JWTError:
         raise credentials_exception
 

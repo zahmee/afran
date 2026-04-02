@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**عفران (afran)** — نظام لإدارة مبيعات محل أكل شعبي. يبيع منتجات أسر منتجة (بعمولة 15%) ومنتجات شركات (بهوامش ربح متغيرة). يتتبع المبيعات اليومية، المرتجعات، وسداد الموردين/الأسر.
+**افران (afran)** — نظام لإدارة مبيعات محل أكل شعبي. يبيع منتجات أسر منتجة (بعمولة 15%) ومنتجات شركات (بهوامش ربح متغيرة). يتتبع المبيعات اليومية، المرتجعات، وسداد الموردين/الأسر.
 
 Arabic-first web application with full RTL support and dark mode.
 
@@ -16,7 +16,10 @@ afran/                    ← working directory (root)
 │   ├── src/app/          ← components, routes, services
 │   │   ├── auth/         ← AuthService, guard, interceptor
 │   │   ├── login/        ← login page
+│   │   ├── register/     ← register page
 │   │   ├── dashboard/    ← dashboard page
+│   │   ├── suppliers/    ← suppliers page + dialog
+│   │   ├── admin/users/  ← users management (admin)
 │   │   ├── app.ts        ← root component (sidenav layout)
 │   │   ├── app.routes.ts ← lazy-loaded routes
 │   │   └── app.config.ts ← providers
@@ -89,8 +92,9 @@ afran/                    ← working directory (root)
 
 ## Database Models
 
-- **User** — id, username, password_hash, full_name, role (admin/user), is_active
-- **Supplier** — id, name, supplier_type (family/company), commission_rate, phone, notes
+- **User** — id, username, password_hash, full_name, role (admin/data_entry/reports), is_active
+- **SupplierType** — id, name (جدول أنواع الموردين: شركات ومؤسسات، أسر منتجة)
+- **Supplier** — id, name, type_id (FK→supplier_types), sales_rate, opening_balance, deal_terms
 - **Product** — id, name, supplier_id (FK), category, unit_price, profit_margin
 - **DailySale** — id, sale_date, total_amount, notes, created_by (FK)
 - **SaleItem** — id, sale_id (FK), product_id (FK), quantity, unit_price, total
@@ -99,8 +103,8 @@ afran/                    ← working directory (root)
 
 ## Business Logic
 
-- **أسر منتجة (family)**: عمولة ثابتة 15% — المحل يأخذ 15% والباقي يعود للأسرة
-- **شركات (company)**: هامش ربح متغير حسب المنتج — يُحدد في `Product.profit_margin`
+- **نسبة المبيعات**: رقم من 0 إلى أقل من 100 — تُحدد لكل مورد
+- **أنواع الموردين**: جدول مرجعي (شركات ومؤسسات، أسر منتجة) — قابل للإضافة
 - **المرتجعات**: ترتبط بفاتورة بيع ومنتج محدد
 - **السدادات**: دفعات للموردين (أسر/شركات) مع تاريخ وملاحظات
 
@@ -109,6 +113,33 @@ afran/                    ← working directory (root)
 Components use flat naming without `.component` suffix:
 - `login/login.ts`, `login/login.html`, `login/login.scss`
 - Class names are PascalCase without `Component` suffix (e.g., `export class Login`)
+
+## Development Guidelines
+
+- **Always use the latest APIs and patterns** — use the most current, recommended approaches for each library and framework (Angular, FastAPI, SQLAlchemy, etc.)
+- **Avoid deprecated features** — do not use deprecated functions, decorators, modules, or patterns. If a newer alternative exists, use it
+- **Frontend**: prefer Angular's latest APIs (signals over BehaviorSubject, `inject()` over constructor DI, native control flow over structural directives, `input()`/`output()` over `@Input`/`@Output` decorators)
+- **Backend**: prefer modern Python patterns (async/await, type hints, Pydantic v2 model_validator over v1 validator, SQLAlchemy 2.0 style queries)
+- **Dependencies**: when adding new packages, use the latest stable versions
+
+## Database Reset & Seed (Development)
+
+عند تعديل أي شيء في نماذج قاعدة البيانات (models.py):
+1. **احذف ملف قاعدة البيانات** `backend/afran.db`
+2. **أعد تشغيل السيرفر** — الجداول تُنشأ تلقائياً عند التشغيل
+3. **أضف بيانات تجريبية** في كل الجداول للتجربة عبر `POST /auth/seed`
+
+يجب أن يقوم endpoint الـ seed بإنشاء:
+- **مستخدم مدير**: admin / admin123 (مفعّل، صلاحية admin)
+- **مستخدم عادي**: user1 / user123 (مفعّل، صلاحية data_entry)
+- **أنواع موردين**: شركات ومؤسسات، أسر منتجة، مخابز
+- **موردين**: 3-4 موردين متنوعين مرتبطين بأنواع مختلفة
+- **منتجات**: 5-6 منتجات مرتبطة بالموردين
+- **مبيعات يومية**: 2-3 فواتير بيع مع بنود
+- **مرتجعات**: 1-2 مرتجع
+- **سدادات**: 1-2 دفعة لموردين
+
+هذا يضمن أن كل الشاشات فيها بيانات للتجربة مباشرة بعد إعادة ضبط القاعدة.
 
 ## Important Note
 After every major change, update this file (CLAUDE.md) to reflect the current project status.

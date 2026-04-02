@@ -1,37 +1,230 @@
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100vh;
 }
 
-.app-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+.app-container {
+  height: 100%;
 }
 
-.app-title {
-  margin-right: 8px;
+/* ─── Sidebar ─── */
+.sidebar {
+  width: 260px;
+  border-inline-end: none !important;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.04);
+}
+
+:host-context(html.dark-mode) .sidebar {
+  background: #1a1c23;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Brand */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px 20px;
+}
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1565c0, #1e88e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  color: #fff;
+  font-size: 22px;
+}
+
+.brand-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 8px 12px;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: 0.7rem;
   font-weight: 700;
-  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.4;
+  padding: 16px 12px 8px;
 }
 
-.spacer {
+.nav-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 8px 12px;
+}
+
+:host-context(html.dark-mode) .nav-divider {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    opacity: 1;
+    font-weight: 700;
+    background: linear-gradient(135deg, rgba(21, 101, 192, 0.08), rgba(30, 136, 229, 0.12));
+    color: #1565c0;
+
+    .nav-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      color: #1565c0;
+    }
+  }
+}
+
+:host-context(html.dark-mode) .nav-link {
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, rgba(66, 165, 245, 0.1), rgba(66, 165, 245, 0.16));
+    color: #64b5f6;
+
+    .nav-icon {
+      color: #64b5f6;
+    }
+  }
+}
+
+.nav-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* Footer / User */
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+:host-context(html.dark-mode) .sidebar-footer {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   flex: 1;
 }
 
-.app-sidenav-container {
-  flex: 1;
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-mat-sidenav {
-  width: 240px;
+.user-role {
+  font-size: 0.72rem;
+  opacity: 0.5;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 4px;
+  padding: 4px 4px 0;
+
+  button {
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* ─── Main Content ─── */
+.main-content {
+  background: #f0f2f5;
+}
+
+:host-context(html.dark-mode) .main-content {
+  background: #111318;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+
+  button {
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 .content-area {
-  padding: 24px;
-}
+  padding: 0 24px 24px;
 
-.active-link {
-  font-weight: 600;
+  @media (max-width: 599px) {
+    padding: 0 16px 16px;
+  }
 }

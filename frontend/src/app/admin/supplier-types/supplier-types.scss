@@ -1,0 +1,250 @@
+.page {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.count-badge {
+  background: rgba(21, 101, 192, 0.1);
+  color: #1565c0;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+:host-context(html.dark-mode) .count-badge {
+  background: rgba(66, 165, 245, 0.12);
+  color: #64b5f6;
+}
+
+/* ─── Add Card ─── */
+.add-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+:host-context(html.dark-mode) .add-card {
+  background: #1e2028;
+}
+
+.add-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-input {
+  flex: 1;
+}
+
+.add-btn {
+  height: 48px;
+  border-radius: 12px !important;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
+  color: #fff !important;
+}
+
+/* ─── Loading ─── */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+/* ─── Types List ─── */
+.types-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.type-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
+}
+
+:host-context(html.dark-mode) .type-card {
+  background: #1e2028;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.type-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+}
+
+.type-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(21, 101, 192, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: #1565c0;
+  }
+}
+
+:host-context(html.dark-mode) .type-icon {
+  background: rgba(66, 165, 245, 0.1);
+
+  mat-icon {
+    color: #64b5f6;
+  }
+}
+
+.type-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.type-actions {
+  display: flex;
+  gap: 2px;
+
+  button {
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .delete-btn:hover {
+    color: #e11d48;
+  }
+}
+
+/* ─── Edit Row ─── */
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+}
+
+.edit-input {
+  flex: 1;
+}
+
+.save-btn {
+  color: #2e7d32;
+}
+
+/* ─── Delete Overlay ─── */
+.delete-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 10;
+  border-radius: 14px;
+
+  p {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+:host-context(html.dark-mode) .delete-overlay {
+  background: rgba(30, 32, 40, 0.96);
+}
+
+.delete-warn-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #e11d48;
+  font-variation-settings: 'FILL' 1;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.delete-confirm-btn {
+  background: #e11d48 !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-weight: 600;
+}
+
+.delete-cancel-btn {
+  border-radius: 10px !important;
+  font-weight: 600;
+}
+
+/* ─── Empty State ─── */
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  opacity: 0.5;
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+}

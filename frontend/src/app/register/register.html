@@ -1,0 +1,101 @@
+<div class="register-page">
+  <!-- Brand Side -->
+  <div class="brand-side">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <mat-icon class="material-symbols-outlined">local_fire_department</mat-icon>
+      </div>
+      <h1 class="brand-name">افران</h1>
+      <p class="brand-desc">نظام إدارة المبيعات</p>
+    </div>
+
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Form Side -->
+  <div class="form-side">
+    <div class="form-container">
+      @if (success()) {
+        <div class="success-card">
+          <div class="success-icon-wrap">
+            <mat-icon class="material-symbols-outlined">check_circle</mat-icon>
+          </div>
+          <h2 class="success-title">تم التسجيل بنجاح</h2>
+          <p class="success-text">حسابك غير مفعّل حالياً — يرجى التواصل مع المدير لتفعيل حسابك</p>
+          <a mat-flat-button routerLink="/login" class="back-btn">العودة لتسجيل الدخول</a>
+        </div>
+      } @else {
+        <div class="form-header">
+          <h2 class="form-title">إنشاء حساب جديد</h2>
+          <p class="form-subtitle">أدخل بياناتك للتسجيل في النظام</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="input-group">
+            <label class="input-label" for="full_name">الاسم الكامل</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-icon matPrefix class="material-symbols-outlined">badge</mat-icon>
+              <input matInput id="full_name" formControlName="full_name" autocomplete="name"
+                     placeholder="أدخل اسمك الكامل">
+            </mat-form-field>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="reg-username">اسم المستخدم</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-icon matPrefix class="material-symbols-outlined">person</mat-icon>
+              <input matInput id="reg-username" formControlName="username" autocomplete="username"
+                     placeholder="اختر اسم مستخدم">
+              @if (form.controls.username.hasError('minlength')) {
+                <mat-error>3 أحرف على الأقل</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="reg-password">كلمة المرور</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-icon matPrefix class="material-symbols-outlined">lock</mat-icon>
+              <input matInput id="reg-password"
+                     [type]="hidePassword() ? 'password' : 'text'"
+                     formControlName="password"
+                     autocomplete="new-password"
+                     placeholder="اختر كلمة مرور">
+              <button mat-icon-button matSuffix type="button"
+                      (click)="hidePassword.set(!hidePassword())"
+                      [attr.aria-label]="hidePassword() ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور'">
+                <mat-icon class="material-symbols-outlined">{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (form.controls.password.hasError('minlength')) {
+                <mat-error>6 أحرف على الأقل</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          @if (error()) {
+            <div class="error-banner">
+              <mat-icon class="material-symbols-outlined">error</mat-icon>
+              <span>{{ error() }}</span>
+            </div>
+          }
+
+          <button mat-flat-button type="submit"
+                  class="full-width submit-btn"
+                  [disabled]="form.invalid || loading()">
+            @if (loading()) {
+              <mat-spinner diameter="22"></mat-spinner>
+            } @else {
+              إنشاء الحساب
+            }
+          </button>
+        </form>
+
+        <div class="login-link">
+          لديك حساب؟ <a routerLink="/login">تسجيل الدخول</a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

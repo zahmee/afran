@@ -33,15 +33,51 @@ html.dark-mode {
   box-sizing: border-box;
 }
 
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 body {
   font-family: 'Vazirmatn', sans-serif;
   direction: rtl;
   min-height: 100vh;
-  background-color: var(--mat-app-background-color);
+  background-color: #f0f2f5;
   color: var(--mat-app-text-color);
+}
+
+html.dark-mode body {
+  background-color: #111318;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/* Material Symbols config */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+
+html.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
 }

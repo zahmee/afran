@@ -1,11 +1,19 @@
 import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from './auth/auth.service';
+
+interface NavItem {
+  label: string;
+  icon: string;
+  route: string;
+  adminOnly?: boolean;
+}
 
 @Component({
   selector: 'app-root',
@@ -13,11 +21,10 @@ import { AuthService } from './auth/auth.service';
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    MatToolbarModule,
     MatSidenavModule,
-    MatListModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -30,16 +37,43 @@ export class App {
   protected readonly sidenavOpen = signal(true);
   protected readonly darkMode = signal(localStorage.getItem('darkMode') === 'true');
 
-  protected readonly showLayout = computed(() => this.auth.isLoggedIn());
+  private readonly noLayoutRoutes = ['/login', '/register'];
 
-  protected readonly navItems = signal([
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(e => e.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  protected readonly showLayout = computed(() => {
+    if (!this.auth.isLoggedIn()) return false;
+    return !this.noLayoutRoutes.includes(this.currentUrl());
+  });
+
+  private readonly allNavItems: NavItem[] = [
     { label: 'الرئيسية', icon: 'dashboard', route: '/dashboard' },
     { label: 'المبيعات', icon: 'point_of_sale', route: '/sales' },
     { label: 'الموردين', icon: 'groups', route: '/suppliers' },
     { label: 'المنتجات', icon: 'inventory_2', route: '/products' },
     { label: 'المرتجعات', icon: 'assignment_return', route: '/returns' },
     { label: 'السدادات', icon: 'payments', route: '/payments' },
-  ]);
+  ];
+
+  private readonly adminNavItems: NavItem[] = [
+    { label: 'المستخدمين', icon: 'manage_accounts', route: '/admin/users', adminOnly: true },
+    { label: 'أنواع الموردين', icon: 'category', route: '/admin/supplier-types', adminOnly: true },
+  ];
+
+  protected readonly navItems = computed(() => {
+    return this.allNavItems;
+  });
+
+  protected readonly adminItems = computed(() => {
+    const role = this.auth.user()?.role;
+    return role === 'admin' ? this.adminNavItems : [];
+  });
 
   protected toggleSidenav() {
     this.sidenavOpen.update(v => !v);

@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "عفران"
+    APP_NAME: str = "افران"
     DATABASE_URL: str = "sqlite+aiosqlite:///./afran.db"
     JWT_SECRET: str = "change-me-in-production-please"
     JWT_ALGORITHM: str = "HS256"

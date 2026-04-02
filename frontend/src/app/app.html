@@ -1,31 +1,66 @@
 @if (showLayout()) {
-  <mat-toolbar color="primary" class="app-toolbar">
-    <button mat-icon-button (click)="toggleSidenav()" aria-label="فتح القائمة">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span class="app-title">عفران</span>
-    <span class="spacer"></span>
-    <button mat-icon-button (click)="toggleDarkMode()" [attr.aria-label]="darkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'">
-      <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-    </button>
-    <button mat-icon-button (click)="logout()" aria-label="تسجيل الخروج">
-      <mat-icon>logout</mat-icon>
-    </button>
-  </mat-toolbar>
+  <mat-sidenav-container class="app-container">
+    <mat-sidenav [opened]="sidenavOpen()" mode="side" class="sidebar">
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <mat-icon class="material-symbols-outlined brand-icon">local_fire_department</mat-icon>
+        </div>
+        <span class="brand-name">افران</span>
+      </div>
 
-  <mat-sidenav-container class="app-sidenav-container">
-    <mat-sidenav [opened]="sidenavOpen()" mode="side" position="end">
-      <mat-nav-list>
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">القائمة</div>
         @for (item of navItems(); track item.route) {
-          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            <span matListItemTitle>{{ item.label }}</span>
+          <a class="nav-link" [routerLink]="item.route" routerLinkActive="active">
+            <mat-icon class="material-symbols-outlined nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-label">{{ item.label }}</span>
           </a>
         }
-      </mat-nav-list>
+
+        @if (adminItems().length) {
+          <div class="nav-divider"></div>
+          <div class="nav-section-label">الإدارة</div>
+          @for (item of adminItems(); track item.route) {
+            <a class="nav-link" [routerLink]="item.route" routerLinkActive="active">
+              <mat-icon class="material-symbols-outlined nav-icon">{{ item.icon }}</mat-icon>
+              <span class="nav-label">{{ item.label }}</span>
+            </a>
+          }
+        }
+      </nav>
+
+      <!-- User section -->
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar">
+            {{ (auth.user()?.full_name ?? '?')[0] }}
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ auth.user()?.full_name ?? '' }}</span>
+            <span class="user-role">{{ auth.user()?.role === 'admin' ? 'مدير' : 'مستخدم' }}</span>
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button mat-icon-button (click)="toggleDarkMode()" [matTooltip]="darkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'">
+            <mat-icon class="material-symbols-outlined">{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
+          <button mat-icon-button (click)="logout()" matTooltip="تسجيل الخروج">
+            <mat-icon class="material-symbols-outlined">logout</mat-icon>
+          </button>
+        </div>
+      </div>
     </mat-sidenav>
 
-    <mat-sidenav-content>
+    <mat-sidenav-content class="main-content">
+      <!-- Top bar -->
+      <header class="top-bar">
+        <button mat-icon-button (click)="toggleSidenav()" aria-label="فتح القائمة">
+          <mat-icon class="material-symbols-outlined">menu</mat-icon>
+        </button>
+      </header>
+
       <div class="content-area">
         <router-outlet />
       </div>

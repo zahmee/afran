@@ -1,46 +1,76 @@
-<div class="login-wrapper">
-  <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>عفران</mat-card-title>
-      <mat-card-subtitle>تسجيل الدخول</mat-card-subtitle>
-    </mat-card-header>
+<div class="login-page">
+  <!-- Brand Side -->
+  <div class="brand-side">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <mat-icon class="material-symbols-outlined">local_fire_department</mat-icon>
+      </div>
+      <h1 class="brand-name">افران</h1>
+      <p class="brand-desc">نظام إدارة المبيعات</p>
+    </div>
 
-    <mat-card-content>
+    <!-- Decorative shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Form Side -->
+  <div class="form-side">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">مرحباً بعودتك</h2>
+        <p class="form-subtitle">سجل دخولك للمتابعة</p>
+      </div>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>اسم المستخدم</mat-label>
-          <input matInput formControlName="username" autocomplete="username">
-          <mat-icon matPrefix>person</mat-icon>
-        </mat-form-field>
+        <div class="input-group">
+          <label class="input-label" for="username">اسم المستخدم</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-icon matPrefix class="material-symbols-outlined">person</mat-icon>
+            <input matInput id="username" formControlName="username" autocomplete="username"
+                   placeholder="أدخل اسم المستخدم">
+          </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>كلمة المرور</mat-label>
-          <input matInput
-                 [type]="hidePassword() ? 'password' : 'text'"
-                 formControlName="password"
-                 autocomplete="current-password">
-          <mat-icon matPrefix>lock</mat-icon>
-          <button mat-icon-button matSuffix type="button"
-                  (click)="hidePassword.set(!hidePassword())"
-                  [attr.aria-label]="hidePassword() ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور'">
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-        </mat-form-field>
+        <div class="input-group">
+          <label class="input-label" for="password">كلمة المرور</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-icon matPrefix class="material-symbols-outlined">lock</mat-icon>
+            <input matInput id="password"
+                   [type]="hidePassword() ? 'password' : 'text'"
+                   formControlName="password"
+                   autocomplete="current-password"
+                   placeholder="أدخل كلمة المرور">
+            <button mat-icon-button matSuffix type="button"
+                    (click)="hidePassword.set(!hidePassword())"
+                    [attr.aria-label]="hidePassword() ? 'إظهار كلمة المرور' : 'إخفاء كلمة المرور'">
+              <mat-icon class="material-symbols-outlined">{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
 
         @if (error()) {
-          <p class="error-message">{{ error() }}</p>
+          <div class="error-banner">
+            <mat-icon class="material-symbols-outlined">error</mat-icon>
+            <span>{{ error() }}</span>
+          </div>
         }
 
-        <button mat-flat-button color="primary" type="submit"
+        <button mat-flat-button type="submit"
                 class="full-width login-btn"
                 [disabled]="form.invalid || loading()">
           @if (loading()) {
-            <mat-spinner diameter="20"></mat-spinner>
+            <mat-spinner diameter="22"></mat-spinner>
           } @else {
-            دخول
+            تسجيل الدخول
           }
         </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+
+      <div class="register-link">
+        ليس لديك حساب؟ <a routerLink="/register">إنشاء حساب جديد</a>
+      </div>
+    </div>
+  </div>
 </div>

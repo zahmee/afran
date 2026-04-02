@@ -1,0 +1,235 @@
+.users-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.user-badge {
+  background: rgba(21, 101, 192, 0.1);
+  color: #1565c0;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+:host-context(html.dark-mode) .user-badge {
+  background: rgba(66, 165, 245, 0.12);
+  color: #64b5f6;
+}
+
+/* ─── Loading ─── */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+/* ─── Users Grid ─── */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.user-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+}
+
+:host-context(html.dark-mode) .user-card {
+  background: #1e2028;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* ─── Card Header ─── */
+.user-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+
+  &.inactive {
+    background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+  }
+}
+
+.user-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-fullname {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-username {
+  font-size: 0.78rem;
+  opacity: 0.45;
+  font-weight: 500;
+}
+
+.card-actions {
+  display: flex;
+  gap: 2px;
+
+  button {
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .delete-btn:hover {
+    color: #e11d48;
+  }
+}
+
+/* ─── Card Body ─── */
+.user-card-body {
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+:host-context(html.dark-mode) .user-card-body {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meta-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.5;
+}
+
+.role-select {
+  width: 130px;
+  font-size: 0.85rem;
+}
+
+/* ─── Delete Overlay ─── */
+.delete-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 10;
+  border-radius: 16px;
+
+  p {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+:host-context(html.dark-mode) .delete-overlay {
+  background: rgba(30, 32, 40, 0.96);
+}
+
+.delete-warn-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #e11d48;
+  font-variation-settings: 'FILL' 1;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.delete-confirm-btn {
+  background: #e11d48 !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  font-weight: 600;
+}
+
+.delete-cancel-btn {
+  border-radius: 10px !important;
+  font-weight: 600;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 599px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+}

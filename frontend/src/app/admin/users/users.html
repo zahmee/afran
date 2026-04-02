@@ -1,0 +1,78 @@
+<div class="users-page">
+  <div class="page-header">
+    <div class="page-title-section">
+      <h1 class="page-title">إدارة المستخدمين</h1>
+      <span class="user-badge">{{ users().length }} مستخدم</span>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="users-grid">
+      @for (user of users(); track user.id) {
+        <div class="user-card">
+          <!-- Delete confirmation overlay -->
+          @if (deleteConfirmId() === user.id) {
+            <div class="delete-overlay">
+              <mat-icon class="material-symbols-outlined delete-warn-icon">warning</mat-icon>
+              <p>هل تريد حذف هذا المستخدم؟</p>
+              <div class="delete-actions">
+                <button mat-flat-button class="delete-confirm-btn" (click)="executeDelete(user)">
+                  حذف
+                </button>
+                <button mat-button class="delete-cancel-btn" (click)="cancelDelete()">
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          }
+
+          <div class="user-card-header">
+            <div class="user-avatar" [class.inactive]="!user.is_active">
+              {{ user.full_name[0] }}
+            </div>
+            <div class="user-identity">
+              <span class="user-fullname">{{ user.full_name }}</span>
+              <span class="user-username">&#64;{{ user.username }}</span>
+            </div>
+            <div class="card-actions">
+              <button mat-icon-button (click)="openEdit(user)" aria-label="تعديل المستخدم">
+                <mat-icon class="material-symbols-outlined">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="confirmDelete(user)" aria-label="حذف المستخدم" class="delete-btn">
+                <mat-icon class="material-symbols-outlined">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="user-card-body">
+            <div class="user-meta">
+              <div class="meta-item">
+                <span class="meta-label">الصلاحية</span>
+                <mat-select [value]="user.role"
+                            (selectionChange)="changeRole(user, $event.value)"
+                            class="role-select">
+                  @for (r of roles; track r.value) {
+                    <mat-option [value]="r.value">{{ r.label }}</mat-option>
+                  }
+                </mat-select>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">الحالة</span>
+                <mat-slide-toggle
+                  [checked]="user.is_active"
+                  (change)="toggleActive(user)"
+                  color="primary">
+                  {{ user.is_active ? 'مفعّل' : 'معطّل' }}
+                </mat-slide-toggle>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
