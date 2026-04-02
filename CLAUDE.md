@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**افران (afran)** — نظام لإدارة مبيعات محل أكل شعبي. يبيع منتجات أسر منتجة (بعمولة 15%) ومنتجات شركات (بهوامش ربح متغيرة). يتتبع المبيعات اليومية، المرتجعات، وسداد الموردين/الأسر.
+**افران (afran)** — نظام لإدارة مبيعات محل أكل شعبي. يبيع منتجات أسر منتجة (بعمولة 15%) ومنتجات شركات (بهوامش ربح متغيرة). يتتبع استلام البضاعة، المرتجعات، وسداد الموردين/الأسر.
 
 Arabic-first web application with full RTL support and dark mode.
 
@@ -18,12 +18,13 @@ afran/                    ← working directory (root)
 │   │   ├── login/        ← login page
 │   │   ├── register/     ← register page
 │   │   ├── dashboard/    ← dashboard page
-│   │   ├── suppliers/    ← suppliers page + dialog
-│   │   ├── admin/users/  ← users management (admin)
-│   │   ├── app.ts        ← root component (sidenav layout)
+│   │   ├── suppliers/    ← suppliers page + supplier-dialog (DynamicDialog)
+│   │   ├── admin/users/  ← users management + edit-user-dialog (DynamicDialog)
+│   │   ├── admin/supplier-types/ ← supplier types management
+│   │   ├── app.ts        ← root component (custom sidebar layout)
 │   │   ├── app.routes.ts ← lazy-loaded routes
-│   │   └── app.config.ts ← providers
-│   ├── angular.json
+│   │   └── app.config.ts ← providers (PrimeNG, MessageService, etc.)
+│   ├── angular.json      ← primeicons.css included in styles
 │   └── package.json
 ├── backend/              ← FastAPI app
 │   ├── src/
@@ -57,10 +58,12 @@ afran/                    ← working directory (root)
 
 ### Frontend
 - Angular 21, TypeScript 5.9, RxJS 7.8
-- Angular Material + Angular CDK (RTL, theming, components)
+- **PrimeNG 19** (UI component library) — لا Angular Material
+- **@primeuix/themes/aura** — ثيم PrimeNG
+- **primeicons** — أيقونات (`pi pi-*`)
 - SCSS per component
 - Vitest 4.0 for testing
-- Google Fonts: Vazirmatn, Material Symbols Outlined
+- Google Fonts: Vazirmatn
 
 ### Backend
 - FastAPI, Python 3.14
@@ -76,11 +79,26 @@ afran/                    ← working directory (root)
 - **`ChangeDetectionStrategy.OnPush`** on all components
 - **Lazy loading** for all feature routes
 - **Native control flow** (`@if`, `@for`, `@switch`)
-- **Reactive Forms** only
+- **Reactive Forms** — استخدم `ReactiveFormsModule` للفورمات
 - **`inject()` function** instead of constructor injection
 - **`input()`/`output()` functions** instead of decorators
 - RTL layout: `index.html` has `lang="ar" dir="rtl"`
 - Dark mode: toggled via `html.dark-mode` class, persisted in localStorage
+
+### Layout
+- **Sidebar مخصص** بـ CSS خالص (لا `mat-sidenav`) — قائمة جانبية داكنة `#0f172a`
+- القائمة تطوي إلى أيقونات فقط عند الضغط على زر القائمة (`[class.collapsed]`)
+- `p-toast` في `app.html` لعرض الإشعارات من أي مكون
+
+### PrimeNG Usage Patterns
+- **Dialog**: `DialogService` + `DynamicDialogRef` من `primeng/dynamicdialog`
+  - يُضاف `providers: [DialogService]` في المكون الفتّاح
+  - يُستخدم `inject(DynamicDialogConfig).data` في مكون الـ dialog
+- **Toast**: `MessageService` مُسجّل في `app.config.ts`، يُحقن مباشرة في المكون
+- **ToggleSwitch**: يستخدم `[(ngModel)]` مع `FormsModule` — لا يوجد `[checked]` أو `[modelValue]` كـ input
+- **Select**: يستخدم `[(ngModel)]` مع `FormsModule` أو `formControlName` مع `ReactiveFormsModule`
+- **Table**: `p-table` مع `<ng-template #header>` و `<ng-template #body let-item>`
+- **Icons**: `<i class="pi pi-[name]"></i>` — لا Material Symbols
 
 ### Backend
 - **Entry**: `backend/src/api.py` — registers all routers, creates tables on startup
@@ -89,6 +107,19 @@ afran/                    ← working directory (root)
 - **Routers**: `backend/src/routers/` — one file per domain
 - **Auth**: JWT via `CurrentUser` dependency in `backend/src/auth/auth.py`
 - **Config**: `backend/src/config.py` — pydantic-settings with .env support
+
+## Navigation Items
+
+| التسمية | الأيقونة | المسار |
+|---------|---------|--------|
+| الرئيسية | `pi-home` | `/dashboard` |
+| استلام البضاعة | `pi-shopping-cart` | `/sales` |
+| الموردين | `pi-users` | `/suppliers` |
+| المنتجات | `pi-box` | `/products` |
+| المرتجعات | `pi-undo` | `/returns` |
+| السدادات | `pi-wallet` | `/payments` |
+| المستخدمين (admin) | `pi-user-edit` | `/admin/users` |
+| أنواع الموردين (admin) | `pi-tags` | `/admin/supplier-types` |
 
 ## Database Models
 
@@ -116,10 +147,10 @@ Components use flat naming without `.component` suffix:
 
 ## Development Guidelines
 
-- **Always use the latest APIs and patterns** — use the most current, recommended approaches for each library and framework (Angular, FastAPI, SQLAlchemy, etc.)
-- **Avoid deprecated features** — do not use deprecated functions, decorators, modules, or patterns. If a newer alternative exists, use it
-- **Frontend**: prefer Angular's latest APIs (signals over BehaviorSubject, `inject()` over constructor DI, native control flow over structural directives, `input()`/`output()` over `@Input`/`@Output` decorators)
-- **Backend**: prefer modern Python patterns (async/await, type hints, Pydantic v2 model_validator over v1 validator, SQLAlchemy 2.0 style queries)
+- **Always use the latest APIs and patterns** — use the most current, recommended approaches for each library and framework
+- **Avoid deprecated features** — لا `@primeng/themes` (deprecated في v19)، استخدم `@primeuix/themes`
+- **Frontend**: prefer Angular's latest APIs (signals over BehaviorSubject, `inject()` over constructor DI, native control flow over structural directives)
+- **Backend**: prefer modern Python patterns (async/await, type hints, Pydantic v2, SQLAlchemy 2.0)
 - **Dependencies**: when adding new packages, use the latest stable versions
 
 ## Database Reset & Seed (Development)

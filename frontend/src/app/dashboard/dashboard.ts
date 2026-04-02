@@ -1,10 +1,10 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatIconModule],
+  imports: [RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,16 +13,16 @@ export class Dashboard {
   protected auth = inject(AuthService);
 
   protected readonly stats = [
-    { title: 'مبيعات اليوم', value: '٠', unit: 'ر.س', icon: 'point_of_sale', gradient: 'blue' },
-    { title: 'الموردين', value: '٠', unit: 'مورد', icon: 'groups', gradient: 'emerald' },
-    { title: 'المنتجات', value: '٠', unit: 'منتج', icon: 'inventory_2', gradient: 'amber' },
-    { title: 'المرتجعات', value: '٠', unit: 'مرتجع', icon: 'assignment_return', gradient: 'rose' },
+    { title: 'مبيعات اليوم', value: '٠', unit: 'ر.س', icon: 'pi-shopping-cart', gradient: 'blue' },
+    { title: 'الموردين', value: '٠', unit: 'مورد', icon: 'pi-users', gradient: 'emerald' },
+    { title: 'المنتجات', value: '٠', unit: 'منتج', icon: 'pi-box', gradient: 'amber' },
+    { title: 'المرتجعات', value: '٠', unit: 'مرتجع', icon: 'pi-undo', gradient: 'rose' },
   ];
 
   protected readonly quickActions = [
-    { label: 'بيع جديد', icon: 'add_shopping_cart', route: '/sales' },
-    { label: 'إضافة منتج', icon: 'add_box', route: '/products' },
-    { label: 'تسجيل سداد', icon: 'account_balance_wallet', route: '/payments' },
-    { label: 'إضافة مورد', icon: 'person_add', route: '/suppliers' },
+    { label: 'استلام بضاعة', icon: 'pi-cart-plus', route: '/sales' },
+    { label: 'إضافة منتج', icon: 'pi-plus-circle', route: '/products' },
+    { label: 'تسجيل سداد', icon: 'pi-wallet', route: '/payments' },
+    { label: 'إضافة مورد', icon: 'pi-user-plus', route: '/suppliers' },
   ];
 }

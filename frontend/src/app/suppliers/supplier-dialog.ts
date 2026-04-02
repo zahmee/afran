@@ -1,14 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
 import { firstValueFrom } from 'rxjs';
 import type { Supplier, SupplierType } from './suppliers';
 
@@ -23,114 +21,103 @@ interface DialogData {
   selector: 'app-supplier-dialog',
   imports: [
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+    DatePickerModule,
+    ButtonModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.supplier ? 'تعديل مورد' : 'إضافة مورد جديد' }}</h2>
+    <div class="dialog-form">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label for="name">اسم المورد</label>
+          <input pInputText id="name" formControlName="name" placeholder="أدخل اسم المورد" />
+        </div>
 
-    <mat-dialog-content>
-      <form [formGroup]="form" id="supplierForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>اسم المورد</mat-label>
-          <input matInput formControlName="name">
-        </mat-form-field>
+        <div class="field">
+          <label for="type">نوع المورد</label>
+          <p-select id="type" formControlName="type_id"
+                    [options]="data.types" optionLabel="name" optionValue="id"
+                    placeholder="اختر النوع" styleClass="w-full" />
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>نوع المورد</mat-label>
-          <mat-select formControlName="type_id">
-            @for (t of data.types; track t.id) {
-              <mat-option [value]="t.id">{{ t.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        <div class="field-row">
+          <div class="field">
+            <label for="sales_rate">نسبة المبيعات (%)</label>
+            <input pInputText id="sales_rate" type="number"
+                   formControlName="sales_rate" min="0" max="99.99" />
+          </div>
+          <div class="field">
+            <label for="opening_balance">الرصيد الافتتاحي</label>
+            <input pInputText id="opening_balance" type="number"
+                   formControlName="opening_balance" />
+          </div>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>نسبة المبيعات (%)</mat-label>
-          <input matInput type="number" formControlName="sales_rate" min="0" max="99.99">
-          <mat-hint>من 0 إلى أقل من 100</mat-hint>
-        </mat-form-field>
+        <div class="field">
+          <label for="deal_terms">نوع التعامل</label>
+          <textarea pTextarea id="deal_terms" formControlName="deal_terms"
+                    rows="3" placeholder="مثال: توريد يومي، الدفع كل أسبوع..."></textarea>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>الرصيد الافتتاحي</mat-label>
-          <input matInput type="number" formControlName="opening_balance">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>نوع التعامل</mat-label>
-          <textarea matInput formControlName="deal_terms" rows="3"
-                    placeholder="مثال: توريد يومي، الدفع كل أسبوع..."></textarea>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>تاريخ التسجيل</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="created_at">
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          <mat-hint>اتركه فارغاً لاستخدام تاريخ اليوم</mat-hint>
-        </mat-form-field>
+        <div class="field">
+          <label for="created_at">تاريخ التسجيل</label>
+          <p-datepicker id="created_at" formControlName="created_at"
+                        dateFormat="yy/mm/dd" styleClass="w-full"
+                        placeholder="اتركه فارغاً لاستخدام تاريخ اليوم" />
+        </div>
 
         @if (error()) {
           <div class="error-banner">
-            <mat-icon class="material-symbols-outlined">error</mat-icon>
+            <i class="pi pi-exclamation-circle"></i>
             <span>{{ error() }}</span>
           </div>
         }
-      </form>
-    </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>إلغاء</button>
-      <button mat-flat-button type="submit" form="supplierForm"
-              class="save-btn"
-              [disabled]="form.invalid || saving()">
-        @if (saving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ data.supplier ? 'حفظ التعديلات' : 'إضافة' }}
-        }
-      </button>
-    </mat-dialog-actions>
+        <div class="dialog-actions">
+          <p-button label="إلغاء" severity="secondary" [text]="true" (onClick)="ref.close()" />
+          <p-button type="submit" [label]="data.supplier ? 'حفظ التعديلات' : 'إضافة'"
+                    icon="pi pi-check" [loading]="saving()" [disabled]="form.invalid" />
+        </div>
+      </form>
+    </div>
   `,
   styles: [`
-    .full-width { width: 100%; }
-    mat-dialog-content { min-width: 400px; }
-    .save-btn {
-      border-radius: 10px !important;
-      background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
-      color: #fff !important;
-      font-weight: 600;
-    }
-    .save-btn[disabled] { opacity: 0.4; }
-    .error-banner {
+    .dialog-form { padding: 8px 0; }
+    .field {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+      label { font-size: 0.85rem; font-weight: 600; color: #374151; }
+      input, textarea { width: 100%; font-family: 'Vazirmatn', sans-serif; }
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    :host ::ng-deep .w-full { width: 100%; }
+    .error-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+      color: #dc2626; font-size: 0.85rem; margin-bottom: 16px;
+    }
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
       gap: 8px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: rgba(225, 29, 72, 0.08);
-      color: #e11d48;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
     }
-    .error-banner mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-    mat-spinner { display: inline-block; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SupplierDialog {
-  protected readonly data = inject<DialogData>(MAT_DIALOG_DATA);
-  private readonly ref = inject(MatDialogRef<SupplierDialog>);
+  protected readonly data = inject(DynamicDialogConfig).data as DialogData;
+  protected readonly ref = inject(DynamicDialogRef);
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
 
@@ -139,7 +126,7 @@ export class SupplierDialog {
 
   protected readonly form = this.fb.group({
     name: [this.data.supplier?.name ?? '', Validators.required],
-    type_id: [this.data.supplier?.type_id ?? (this.data.types[0]?.id ?? 0), Validators.required],
+    type_id: [this.data.supplier?.type_id ?? (this.data.types[0]?.id ?? null), Validators.required],
     sales_rate: [this.data.supplier?.sales_rate ?? 0],
     opening_balance: [this.data.supplier?.opening_balance ?? 0],
     deal_terms: [this.data.supplier?.deal_terms ?? ''],
@@ -155,21 +142,17 @@ export class SupplierDialog {
     try {
       const raw = this.form.getRawValue();
       const body: Record<string, unknown> = { ...raw };
-      // Convert Date to yyyy-MM-dd string, or null
       if (raw.created_at instanceof Date) {
         const d = raw.created_at;
         body['created_at'] = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       } else {
         delete body['created_at'];
       }
+
       if (this.data.supplier) {
-        await firstValueFrom(
-          this.http.patch(`${API}/suppliers/${this.data.supplier.id}`, body)
-        );
+        await firstValueFrom(this.http.patch(`${API}/suppliers/${this.data.supplier.id}`, body));
       } else {
-        await firstValueFrom(
-          this.http.post(`${API}/suppliers`, body)
-        );
+        await firstValueFrom(this.http.post(`${API}/suppliers`, body));
       }
       this.ref.close(true);
     } catch (e: any) {

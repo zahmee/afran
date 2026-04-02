@@ -6,7 +6,7 @@
       <p class="welcome-text">إليك ملخص نشاط المحل اليوم</p>
     </div>
     <div class="welcome-art">
-      <mat-icon class="material-symbols-outlined art-icon">storefront</mat-icon>
+      <i class="pi pi-shop art-icon"></i>
     </div>
   </div>
 
@@ -14,8 +14,8 @@
   <div class="stats-grid">
     @for (stat of stats; track stat.title) {
       <div class="stat-card">
-        <div class="stat-icon-wrap" [class]="'stat-icon-wrap ' + stat.gradient">
-          <mat-icon class="material-symbols-outlined">{{ stat.icon }}</mat-icon>
+        <div class="stat-icon-wrap" [class]="stat.gradient">
+          <i class="pi {{ stat.icon }}"></i>
         </div>
         <div class="stat-body">
           <span class="stat-title">{{ stat.title }}</span>
@@ -33,9 +33,9 @@
     <h2 class="section-title">إجراءات سريعة</h2>
     <div class="actions-grid">
       @for (action of quickActions; track action.label) {
-        <a class="action-card" [href]="action.route">
+        <a class="action-card" [routerLink]="action.route">
           <div class="action-icon">
-            <mat-icon class="material-symbols-outlined">{{ action.icon }}</mat-icon>
+            <i class="pi {{ action.icon }}"></i>
           </div>
           <span class="action-label">{{ action.label }}</span>
         </a>

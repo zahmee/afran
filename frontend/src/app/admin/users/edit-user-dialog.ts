@@ -1,13 +1,11 @@
 import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
 import { firstValueFrom } from 'rxjs';
 import { User } from '../../auth/auth.service';
 
@@ -17,100 +15,100 @@ const API = 'http://localhost:8011';
   selector: 'app-edit-user-dialog',
   imports: [
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
+    InputTextModule,
+    PasswordModule,
+    SelectModule,
+    ButtonModule,
   ],
   template: `
-    <h2 mat-dialog-title class="dialog-title">تعديل المستخدم</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="edit-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>الاسم الكامل</mat-label>
-          <mat-icon matPrefix class="material-symbols-outlined">badge</mat-icon>
-          <input matInput formControlName="full_name">
-        </mat-form-field>
+    <div class="dialog-form">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="field">
+          <label for="full_name">الاسم الكامل</label>
+          <div class="input-wrap">
+            <i class="pi pi-id-card input-icon"></i>
+            <input pInputText id="full_name" formControlName="full_name" />
+          </div>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>اسم المستخدم</mat-label>
-          <mat-icon matPrefix class="material-symbols-outlined">person</mat-icon>
-          <input matInput formControlName="username">
-          @if (form.controls.username.hasError('minlength')) {
-            <mat-error>3 أحرف على الأقل</mat-error>
+        <div class="field">
+          <label for="username">اسم المستخدم</label>
+          <div class="input-wrap">
+            <i class="pi pi-user input-icon"></i>
+            <input pInputText id="username" formControlName="username" />
+          </div>
+          @if (form.controls.username.touched && form.controls.username.hasError('minlength')) {
+            <small class="field-error">3 أحرف على الأقل</small>
           }
-        </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>كلمة مرور جديدة (اتركه فارغاً للإبقاء)</mat-label>
-          <mat-icon matPrefix class="material-symbols-outlined">lock</mat-icon>
-          <input matInput type="password" formControlName="password">
-          @if (form.controls.password.hasError('minlength')) {
-            <mat-error>6 أحرف على الأقل</mat-error>
+        <div class="field">
+          <label for="password">كلمة مرور جديدة</label>
+          <p-password id="password" formControlName="password"
+                      [feedback]="false" [toggleMask]="true"
+                      placeholder="اتركه فارغاً للإبقاء"
+                      styleClass="full-width" />
+          @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+            <small class="field-error">6 أحرف على الأقل</small>
           }
-        </mat-form-field>
+        </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>الصلاحية</mat-label>
-          <mat-icon matPrefix class="material-symbols-outlined">shield_person</mat-icon>
-          <mat-select formControlName="role">
-            @for (r of roles; track r.value) {
-              <mat-option [value]="r.value">{{ r.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+        <div class="field">
+          <label for="role">الصلاحية</label>
+          <p-select id="role" formControlName="role"
+                    [options]="roles" optionLabel="label" optionValue="value"
+                    styleClass="w-full" />
+        </div>
 
         @if (error()) {
           <div class="error-banner">
-            <mat-icon class="material-symbols-outlined">error</mat-icon>
+            <i class="pi pi-exclamation-circle"></i>
             <span>{{ error() }}</span>
           </div>
         }
+
+        <div class="dialog-actions">
+          <p-button label="إلغاء" severity="secondary" [text]="true" (onClick)="ref.close()" />
+          <p-button type="submit" label="حفظ التعديلات" icon="pi pi-check"
+                    [loading]="saving()" [disabled]="form.invalid" />
+        </div>
       </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close class="cancel-btn">إلغاء</button>
-      <button mat-flat-button
-              class="save-btn"
-              [disabled]="form.invalid || saving()"
-              (click)="save()">
-        @if (saving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          حفظ التعديلات
-        }
-      </button>
-    </mat-dialog-actions>
+    </div>
   `,
   styles: [`
-    .dialog-title { font-weight: 800 !important; font-size: 1.2rem !important; }
-    .edit-form { display: flex; flex-direction: column; gap: 4px; min-width: 350px; }
-    .full-width { width: 100%; }
+    .dialog-form { padding: 8px 0; }
+    .field {
+      display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px;
+      label { font-size: 0.85rem; font-weight: 600; color: #374151; }
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: #94a3b8; font-size: 15px; pointer-events: none;
+    }
+    input.p-inputtext { width: 100%; padding-right: 38px !important; font-family: 'Vazirmatn', sans-serif; }
+    :host ::ng-deep .full-width { width: 100%; display: block; }
+    :host ::ng-deep .full-width input { width: 100% !important; font-family: 'Vazirmatn', sans-serif; }
+    :host ::ng-deep .w-full { width: 100%; }
+    .field-error { color: #dc2626; font-size: 0.8rem; }
     .error-banner {
-      display: flex; align-items: center; gap: 8px;
-      padding: 12px 16px; border-radius: 12px;
-      background: rgba(225, 29, 72, 0.08); color: #e11d48;
-      font-size: 0.85rem; font-weight: 500;
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+      border-radius: 10px; background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2); color: #dc2626;
+      font-size: 0.85rem; margin-bottom: 16px;
     }
-    .error-banner mat-icon { font-size: 20px; width: 20px; height: 20px; }
-    .save-btn {
-      border-radius: 10px !important; font-weight: 700;
-      background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
-      color: #fff !important;
+    .dialog-actions {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding-top: 8px; border-top: 1px solid #e2e8f0;
     }
-    .cancel-btn { border-radius: 10px !important; }
-    mat-spinner { display: inline-block; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditUserDialog {
+  private data: User = inject(DynamicDialogConfig).data;
+  protected readonly ref = inject(DynamicDialogRef);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
-  private dialogRef = inject(MatDialogRef<EditUserDialog>);
-  private data: User = inject(MAT_DIALOG_DATA);
 
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -139,15 +137,13 @@ export class EditUserDialog {
       username: raw.username,
       role: raw.role,
     };
-    if (raw.password) {
-      body['password'] = raw.password;
-    }
+    if (raw.password) body['password'] = raw.password;
 
     try {
       const updated = await firstValueFrom(
         this.http.patch<User>(`${API}/auth/users/${this.data.id}`, body)
       );
-      this.dialogRef.close(updated);
+      this.ref.close(updated);
     } catch (e: any) {
       const detail = e?.error?.detail;
       this.error.set(typeof detail === 'string' ? detail : 'حدث خطأ في الحفظ');

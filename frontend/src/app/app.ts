@@ -2,10 +2,9 @@ import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@a
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from './auth/auth.service';
 
 interface NavItem {
@@ -21,10 +20,9 @@ interface NavItem {
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    MatSidenavModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
+    ButtonModule,
+    ToastModule,
+    TooltipModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -53,22 +51,20 @@ export class App {
   });
 
   private readonly allNavItems: NavItem[] = [
-    { label: 'الرئيسية', icon: 'dashboard', route: '/dashboard' },
-    { label: 'المبيعات', icon: 'point_of_sale', route: '/sales' },
-    { label: 'الموردين', icon: 'groups', route: '/suppliers' },
-    { label: 'المنتجات', icon: 'inventory_2', route: '/products' },
-    { label: 'المرتجعات', icon: 'assignment_return', route: '/returns' },
-    { label: 'السدادات', icon: 'payments', route: '/payments' },
+    { label: 'الرئيسية', icon: 'pi-home', route: '/dashboard' },
+    { label: 'استلام البضاعة', icon: 'pi-shopping-cart', route: '/sales' },
+    { label: 'الموردين', icon: 'pi-users', route: '/suppliers' },
+    { label: 'المنتجات', icon: 'pi-box', route: '/products' },
+    { label: 'المرتجعات', icon: 'pi-undo', route: '/returns' },
+    { label: 'السدادات', icon: 'pi-wallet', route: '/payments' },
   ];
 
   private readonly adminNavItems: NavItem[] = [
-    { label: 'المستخدمين', icon: 'manage_accounts', route: '/admin/users', adminOnly: true },
-    { label: 'أنواع الموردين', icon: 'category', route: '/admin/supplier-types', adminOnly: true },
+    { label: 'المستخدمين', icon: 'pi-user-edit', route: '/admin/users', adminOnly: true },
+    { label: 'أنواع الموردين', icon: 'pi-tags', route: '/admin/supplier-types', adminOnly: true },
   ];
 
-  protected readonly navItems = computed(() => {
-    return this.allNavItems;
-  });
+  protected readonly navItems = computed(() => this.allNavItems);
 
   protected readonly adminItems = computed(() => {
     const role = this.auth.user()?.role;

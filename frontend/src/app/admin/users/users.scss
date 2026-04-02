@@ -3,11 +3,7 @@
   margin: 0 auto;
 }
 
-/* ─── Page Header ─── */
 .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 24px;
 }
 
@@ -18,142 +14,153 @@
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  margin: 0;
+  color: #0f172a;
 }
 
-.user-badge {
-  background: rgba(21, 101, 192, 0.1);
-  color: #1565c0;
-  padding: 4px 14px;
+:host-context(html.dark-mode) .page-title { color: #f1f5f9; }
+
+.count-badge {
+  background: #e0e7ff;
+  color: #3730a3;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
-:host-context(html.dark-mode) .user-badge {
-  background: rgba(66, 165, 245, 0.12);
-  color: #64b5f6;
+:host-context(html.dark-mode) .count-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
 }
 
-/* ─── Loading ─── */
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 64px;
+  padding: 80px 0;
 }
 
-/* ─── Users Grid ─── */
+.spinner-icon {
+  font-size: 40px;
+  color: #3b82f6;
+}
+
 .users-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
 
 .user-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  position: relative;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s ease;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 }
 
 :host-context(html.dark-mode) .user-card {
-  background: #1e2028;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  }
+  background: #1e293b;
+  border-color: #334155;
 }
 
-/* ─── Card Header ─── */
+/* Delete overlay */
+.delete-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
+  padding: 20px;
+  border-radius: 14px;
+
+  p { color: #f1f5f9; font-size: 0.9rem; font-weight: 600; text-align: center; }
+}
+
+.delete-warn-icon {
+  font-size: 32px;
+  color: #f59e0b;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Card Header */
 .user-card-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+:host-context(html.dark-mode) .user-card-header {
+  border-bottom-color: #334155;
 }
 
 .user-avatar {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1rem;
   flex-shrink: 0;
 
   &.inactive {
-    background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+    background: linear-gradient(135deg, #64748b, #94a3b8);
   }
 }
 
 .user-identity {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
   flex: 1;
+  min-width: 0;
 }
 
 .user-fullname {
-  font-size: 0.95rem;
+  display: block;
   font-weight: 700;
+  font-size: 0.9rem;
+  color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+:host-context(html.dark-mode) .user-fullname { color: #f1f5f9; }
+
 .user-username {
+  display: block;
   font-size: 0.78rem;
-  opacity: 0.45;
-  font-weight: 500;
+  color: #94a3b8;
 }
 
 .card-actions {
   display: flex;
   gap: 2px;
-
-  button {
-    opacity: 0.4;
-    transition: opacity 0.15s ease;
-
-    &:hover {
-      opacity: 1;
-    }
-
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .delete-btn:hover {
-    color: #e11d48;
-  }
 }
 
-/* ─── Card Body ─── */
+/* Card Body */
 .user-card-body {
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-:host-context(html.dark-mode) .user-card-body {
-  border-top-color: rgba(255, 255, 255, 0.06);
-}
-
-.user-meta {
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -163,73 +170,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .meta-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+::ng-deep .role-select {
+  font-size: 0.82rem !important;
+  border-radius: 8px !important;
+  min-width: 140px;
+}
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-label {
   font-size: 0.8rem;
   font-weight: 600;
-  opacity: 0.5;
-}
+  color: #94a3b8;
 
-.role-select {
-  width: 130px;
-  font-size: 0.85rem;
-}
-
-/* ─── Delete Overlay ─── */
-.delete-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(4px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  z-index: 10;
-  border-radius: 16px;
-
-  p {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0;
-  }
-}
-
-:host-context(html.dark-mode) .delete-overlay {
-  background: rgba(30, 32, 40, 0.96);
-}
-
-.delete-warn-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: #e11d48;
-  font-variation-settings: 'FILL' 1;
-}
-
-.delete-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.delete-confirm-btn {
-  background: #e11d48 !important;
-  color: #fff !important;
-  border-radius: 10px !important;
-  font-weight: 600;
-}
-
-.delete-cancel-btn {
-  border-radius: 10px !important;
-  font-weight: 600;
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 599px) {
-  .users-grid {
-    grid-template-columns: 1fr;
-  }
+  &.active { color: #16a34a; }
 }

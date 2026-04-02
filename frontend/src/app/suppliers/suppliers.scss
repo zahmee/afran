@@ -5,92 +5,89 @@
 
 .page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .page-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
 }
+
+:host-context(html.dark-mode) .page-title { color: #f1f5f9; }
 
 .page-subtitle {
   font-size: 0.85rem;
-  opacity: 0.5;
-  margin: 4px 0 0;
-}
-
-.add-btn {
-  border-radius: 12px !important;
-  height: 44px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
-  color: #fff !important;
-
-  mat-icon {
-    margin-inline-end: 4px;
-  }
+  color: #64748b;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 64px;
+  padding: 80px 0;
+}
+
+::ng-deep .spinner {
+  width: 40px !important;
+  height: 40px !important;
 }
 
 .empty-state {
   text-align: center;
-  padding: 64px 24px;
-  opacity: 0.6;
+  padding: 80px 20px;
+  color: #94a3b8;
+
+  .empty-icon {
+    font-size: 56px;
+    opacity: 0.3;
+    display: block;
+    margin-bottom: 16px;
+  }
 
   p {
-    margin: 12px 0 20px;
     font-size: 1rem;
+    margin-bottom: 20px;
+    color: #64748b;
   }
 }
 
-.empty-icon {
-  font-size: 56px;
-  width: 56px;
-  height: 56px;
-}
-
-.table-container {
+.table-wrapper {
+  background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-:host-context(html.dark-mode) .table-container {
-  border-color: rgba(255, 255, 255, 0.06);
-  background: #1a1c23;
-}
-
-table {
-  width: 100%;
-}
-
-th.mat-mdc-header-cell {
-  font-weight: 700;
-  font-size: 0.8rem;
-  opacity: 0.6;
+:host-context(html.dark-mode) .table-wrapper {
+  background: #1e293b;
+  border-color: #334155;
 }
 
 .supplier-name {
   font-weight: 600;
+  color: #0f172a;
 }
 
+:host-context(html.dark-mode) .supplier-name { color: #f1f5f9; }
+
 .deal-terms {
-  white-space: pre-line;
-  max-width: 200px;
-  display: inline-block;
+  font-size: 0.82rem;
+  color: #64748b;
+  max-width: 160px;
+  display: block;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.delete-btn {
-  color: #e11d48;
+.row-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
 }

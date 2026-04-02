@@ -1,10 +1,13 @@
 @if (showLayout()) {
-  <mat-sidenav-container class="app-container">
-    <mat-sidenav [opened]="sidenavOpen()" mode="side" class="sidebar">
+  <p-toast position="bottom-center" />
+
+  <div class="layout" [class.collapsed]="!sidenavOpen()">
+    <!-- Sidebar -->
+    <aside class="sidebar">
       <!-- Brand -->
       <div class="sidebar-brand">
         <div class="brand-logo">
-          <mat-icon class="material-symbols-outlined brand-icon">local_fire_department</mat-icon>
+          <i class="pi pi-bolt brand-icon"></i>
         </div>
         <span class="brand-name">افران</span>
       </div>
@@ -13,8 +16,9 @@
       <nav class="sidebar-nav">
         <div class="nav-section-label">القائمة</div>
         @for (item of navItems(); track item.route) {
-          <a class="nav-link" [routerLink]="item.route" routerLinkActive="active">
-            <mat-icon class="material-symbols-outlined nav-icon">{{ item.icon }}</mat-icon>
+          <a class="nav-link" [routerLink]="item.route" routerLinkActive="active"
+             [pTooltip]="!sidenavOpen() ? item.label : ''" tooltipPosition="left">
+            <i class="pi {{ item.icon }} nav-icon"></i>
             <span class="nav-label">{{ item.label }}</span>
           </a>
         }
@@ -23,15 +27,16 @@
           <div class="nav-divider"></div>
           <div class="nav-section-label">الإدارة</div>
           @for (item of adminItems(); track item.route) {
-            <a class="nav-link" [routerLink]="item.route" routerLinkActive="active">
-              <mat-icon class="material-symbols-outlined nav-icon">{{ item.icon }}</mat-icon>
+            <a class="nav-link" [routerLink]="item.route" routerLinkActive="active"
+               [pTooltip]="!sidenavOpen() ? item.label : ''" tooltipPosition="left">
+              <i class="pi {{ item.icon }} nav-icon"></i>
               <span class="nav-label">{{ item.label }}</span>
             </a>
           }
         }
       </nav>
 
-      <!-- User section -->
+      <!-- Footer -->
       <div class="sidebar-footer">
         <div class="user-card">
           <div class="user-avatar">
@@ -43,29 +48,29 @@
           </div>
         </div>
         <div class="footer-actions">
-          <button mat-icon-button (click)="toggleDarkMode()" [matTooltip]="darkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'">
-            <mat-icon class="material-symbols-outlined">{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <button class="icon-btn" (click)="toggleDarkMode()"
+                  [pTooltip]="darkMode() ? 'الوضع الفاتح' : 'الوضع الداكن'" tooltipPosition="top">
+            <i class="pi" [class.pi-sun]="darkMode()" [class.pi-moon]="!darkMode()"></i>
           </button>
-          <button mat-icon-button (click)="logout()" matTooltip="تسجيل الخروج">
-            <mat-icon class="material-symbols-outlined">logout</mat-icon>
+          <button class="icon-btn danger" (click)="logout()" pTooltip="تسجيل الخروج" tooltipPosition="top">
+            <i class="pi pi-sign-out"></i>
           </button>
         </div>
       </div>
-    </mat-sidenav>
+    </aside>
 
-    <mat-sidenav-content class="main-content">
-      <!-- Top bar -->
+    <!-- Main -->
+    <div class="main-wrapper">
       <header class="top-bar">
-        <button mat-icon-button (click)="toggleSidenav()" aria-label="فتح القائمة">
-          <mat-icon class="material-symbols-outlined">menu</mat-icon>
+        <button class="menu-btn" (click)="toggleSidenav()" aria-label="فتح القائمة">
+          <i class="pi pi-bars"></i>
         </button>
       </header>
-
       <div class="content-area">
         <router-outlet />
       </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+    </div>
+  </div>
 } @else {
   <router-outlet />
 }

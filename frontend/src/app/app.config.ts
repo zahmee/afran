@@ -2,7 +2,9 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER,
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
+import { MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './auth/auth.interceptor';
@@ -14,7 +16,18 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimationsAsync(),
-    provideNativeDateAdapter(),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          prefix: 'p',
+          darkModeSelector: 'html.dark-mode',
+          cssLayer: false,
+        },
+      },
+      ripple: true,
+    }),
+    MessageService,
     {
       provide: APP_INITIALIZER,
       useFactory: () => {

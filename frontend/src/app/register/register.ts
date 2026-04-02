@@ -2,11 +2,9 @@ import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/cor
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
 import { firstValueFrom } from 'rxjs';
 
 const API = 'http://localhost:8011';
@@ -16,11 +14,9 @@ const API = 'http://localhost:8011';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss',
@@ -33,7 +29,6 @@ export class Register {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly success = signal(false);
-  protected readonly hidePassword = signal(true);
 
   protected readonly form = this.fb.nonNullable.group({
     full_name: ['', Validators.required],

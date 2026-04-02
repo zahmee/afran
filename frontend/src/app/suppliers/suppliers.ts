@@ -1,20 +1,16 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 import { SupplierDialog } from './supplier-dialog';
 
 const API = 'http://localhost:8011';
@@ -39,34 +35,29 @@ export interface Supplier {
 @Component({
   selector: 'app-suppliers',
   imports: [
-    ReactiveFormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
     DatePipe,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    ToggleSwitchModule,
+    TooltipModule,
+    ProgressSpinnerModule,
   ],
+  providers: [DialogService],
   templateUrl: './suppliers.html',
   styleUrl: './suppliers.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Suppliers implements OnInit {
   private http = inject(HttpClient);
-  private dialog = inject(MatDialog);
-  private snack = inject(MatSnackBar);
+  private dialogService = inject(DialogService);
+  private messageService = inject(MessageService);
+  private ref?: DynamicDialogRef;
 
   protected readonly suppliers = signal<Supplier[]>([]);
   protected readonly types = signal<SupplierType[]>([]);
   protected readonly loading = signal(true);
-  protected readonly displayedColumns = ['name', 'type_name', 'sales_rate', 'opening_balance', 'deal_terms', 'is_active', 'created_at', 'actions'];
 
   ngOnInit() {
     this.loadData();
@@ -87,31 +78,42 @@ export class Suppliers implements OnInit {
   }
 
   protected openDialog(supplier?: Supplier) {
-    const ref = this.dialog.open(SupplierDialog, {
-      width: '500px',
-      direction: 'rtl',
+    this.ref = this.dialogService.open(SupplierDialog, {
+      header: supplier ? 'تعديل مورد' : 'إضافة مورد جديد',
+      width: '520px',
+      modal: true,
+      closable: true,
       data: { supplier, types: this.types() },
     });
 
-    ref.afterClosed().subscribe(result => {
+    this.ref.onClose.subscribe((result: boolean) => {
       if (result) this.loadData();
     });
   }
 
-  protected async toggleActive(s: Supplier) {
-    const newState = !s.is_active;
+  protected async toggleActive(s: Supplier, checked: boolean) {
     await firstValueFrom(
-      this.http.patch(`${API}/suppliers/${s.id}`, { is_active: newState })
+      this.http.patch(`${API}/suppliers/${s.id}`, { is_active: checked })
     );
     this.suppliers.update(list =>
-      list.map(x => x.id === s.id ? { ...x, is_active: newState } : x)
+      list.map(x => x.id === s.id ? { ...x, is_active: checked } : x)
     );
-    this.snack.open(newState ? `تم تنشيط ${s.name}` : `تم إيقاف ${s.name}`, 'حسناً', { duration: 3000 });
+    this.messageService.add({
+      severity: checked ? 'success' : 'warn',
+      summary: checked ? 'تم التنشيط' : 'تم الإيقاف',
+      detail: s.name,
+      life: 3000,
+    });
   }
 
   protected async deleteSupplier(s: Supplier) {
     await firstValueFrom(this.http.delete(`${API}/suppliers/${s.id}`));
     this.suppliers.update(list => list.filter(x => x.id !== s.id));
-    this.snack.open(`تم حذف ${s.name}`, 'حسناً', { duration: 3000 });
+    this.messageService.add({
+      severity: 'info',
+      summary: 'تم الحذف',
+      detail: s.name,
+      life: 3000,
+    });
   }
 }

@@ -1,12 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 
 const API = 'http://localhost:8011';
@@ -20,12 +17,8 @@ interface SupplierType {
   selector: 'app-supplier-types',
   imports: [
     ReactiveFormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
+    InputTextModule,
+    ButtonModule,
   ],
   templateUrl: './supplier-types.html',
   styleUrl: './supplier-types.scss',
@@ -34,7 +27,7 @@ interface SupplierType {
 export class SupplierTypes implements OnInit {
   private http = inject(HttpClient);
   private fb = inject(FormBuilder);
-  private snack = inject(MatSnackBar);
+  private messageService = inject(MessageService);
 
   protected readonly types = signal<SupplierType[]>([]);
   protected readonly loading = signal(true);
@@ -75,10 +68,10 @@ export class SupplierTypes implements OnInit {
       );
       this.types.update(list => [...list, created]);
       this.addForm.reset();
-      this.snack.open(`تم إضافة "${created.name}"`, 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'success', summary: 'تم الإضافة', detail: created.name, life: 3000 });
     } catch (e: any) {
       const detail = e?.error?.detail;
-      this.snack.open(typeof detail === 'string' ? detail : 'حدث خطأ', 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'خطأ', detail: typeof detail === 'string' ? detail : 'حدث خطأ', life: 3000 });
     } finally {
       this.saving.set(false);
     }
@@ -103,10 +96,10 @@ export class SupplierTypes implements OnInit {
       );
       this.types.update(list => list.map(t => t.id === updated.id ? updated : t));
       this.editingId.set(null);
-      this.snack.open(`تم تعديل "${updated.name}"`, 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'success', summary: 'تم التعديل', detail: updated.name, life: 3000 });
     } catch (e: any) {
       const detail = e?.error?.detail;
-      this.snack.open(typeof detail === 'string' ? detail : 'حدث خطأ', 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'خطأ', detail: typeof detail === 'string' ? detail : 'حدث خطأ', life: 3000 });
     } finally {
       this.saving.set(false);
     }
@@ -123,15 +116,13 @@ export class SupplierTypes implements OnInit {
 
   protected async executeDelete(type: SupplierType) {
     try {
-      await firstValueFrom(
-        this.http.delete(`${API}/suppliers/types/${type.id}`)
-      );
+      await firstValueFrom(this.http.delete(`${API}/suppliers/types/${type.id}`));
       this.types.update(list => list.filter(t => t.id !== type.id));
       this.deleteConfirmId.set(null);
-      this.snack.open(`تم حذف "${type.name}"`, 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'info', summary: 'تم الحذف', detail: type.name, life: 3000 });
     } catch (e: any) {
       const detail = e?.error?.detail;
-      this.snack.open(typeof detail === 'string' ? detail : 'حدث خطأ', 'حسناً', { duration: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'خطأ', detail: typeof detail === 'string' ? detail : 'حدث خطأ', life: 3000 });
     }
   }
 }

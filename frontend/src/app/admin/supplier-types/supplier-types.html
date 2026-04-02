@@ -9,74 +9,63 @@
   <!-- Add new type -->
   <div class="add-card">
     <form [formGroup]="addForm" (ngSubmit)="addType()" class="add-form">
-      <mat-form-field appearance="outline" class="add-input">
-        <mat-label>اسم النوع الجديد</mat-label>
-        <input matInput formControlName="name" placeholder="مثال: أسر منتجة">
-      </mat-form-field>
-      <button mat-flat-button type="submit" class="add-btn"
-              [disabled]="addForm.invalid || saving()">
-        <mat-icon class="material-symbols-outlined">add</mat-icon>
-        إضافة
-      </button>
+      <div class="add-input-wrap">
+        <i class="pi pi-tag add-icon"></i>
+        <input pInputText formControlName="name" placeholder="اسم النوع الجديد (مثال: أسر منتجة)"
+               class="add-input" />
+      </div>
+      <p-button type="submit" label="إضافة" icon="pi pi-plus"
+                [loading]="saving()" [disabled]="addForm.invalid" />
     </form>
   </div>
 
   @if (loading()) {
     <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+      <i class="pi pi-spin pi-spinner spinner-icon"></i>
     </div>
   } @else {
     <div class="types-list">
       @for (type of types(); track type.id) {
         <div class="type-card">
-          <!-- Delete overlay -->
           @if (deleteConfirmId() === type.id) {
             <div class="delete-overlay">
-              <mat-icon class="material-symbols-outlined delete-warn-icon">warning</mat-icon>
+              <i class="pi pi-exclamation-triangle warn-icon"></i>
               <p>هل تريد حذف "{{ type.name }}"؟</p>
               <div class="delete-actions">
-                <button mat-flat-button class="delete-confirm-btn" (click)="executeDelete(type)">حذف</button>
-                <button mat-button class="delete-cancel-btn" (click)="cancelDelete()">إلغاء</button>
+                <p-button label="حذف" icon="pi pi-trash" severity="danger"
+                          size="small" (onClick)="executeDelete(type)" />
+                <p-button label="إلغاء" severity="secondary" [text]="true"
+                          size="small" (onClick)="cancelDelete()" />
               </div>
             </div>
           }
 
           @if (editingId() === type.id) {
-            <!-- Edit mode -->
             <form [formGroup]="editForm" (ngSubmit)="saveEdit(type)" class="edit-row">
-              <mat-form-field appearance="outline" class="edit-input">
-                <input matInput formControlName="name">
-              </mat-form-field>
-              <button mat-icon-button type="submit" [disabled]="editForm.invalid || saving()"
-                      class="save-btn" aria-label="حفظ">
-                <mat-icon class="material-symbols-outlined">check</mat-icon>
-              </button>
-              <button mat-icon-button type="button" (click)="cancelEdit()"
-                      aria-label="إلغاء">
-                <mat-icon class="material-symbols-outlined">close</mat-icon>
-              </button>
+              <input pInputText formControlName="name" class="edit-input" />
+              <p-button type="submit" icon="pi pi-check" [text]="true" [rounded]="true"
+                        size="small" [disabled]="editForm.invalid || saving()" />
+              <p-button type="button" icon="pi pi-times" [text]="true" [rounded]="true"
+                        size="small" severity="secondary" (onClick)="cancelEdit()" />
             </form>
           } @else {
-            <!-- Display mode -->
             <div class="type-row">
-              <div class="type-icon">
-                <mat-icon class="material-symbols-outlined">category</mat-icon>
+              <div class="type-icon-wrap">
+                <i class="pi pi-tag"></i>
               </div>
               <span class="type-name">{{ type.name }}</span>
               <div class="type-actions">
-                <button mat-icon-button (click)="startEdit(type)" aria-label="تعديل">
-                  <mat-icon class="material-symbols-outlined">edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="confirmDelete(type)" aria-label="حذف" class="delete-btn">
-                  <mat-icon class="material-symbols-outlined">delete</mat-icon>
-                </button>
+                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true"
+                          size="small" (onClick)="startEdit(type)" />
+                <p-button icon="pi pi-trash" [text]="true" [rounded]="true"
+                          size="small" severity="danger" (onClick)="confirmDelete(type)" />
               </div>
             </div>
           }
         </div>
       } @empty {
         <div class="empty-state">
-          <mat-icon class="material-symbols-outlined empty-icon">category</mat-icon>
+          <i class="pi pi-tags empty-icon"></i>
           <p>لا توجد أنواع موردين بعد</p>
         </div>
       }

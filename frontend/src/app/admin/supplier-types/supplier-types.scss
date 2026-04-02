@@ -3,12 +3,7 @@
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
+.page-header { margin-bottom: 24px; }
 
 .page-title-section {
   display: flex;
@@ -17,63 +12,80 @@
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  margin: 0;
+  color: #0f172a;
 }
 
+:host-context(html.dark-mode) .page-title { color: #f1f5f9; }
+
 .count-badge {
-  background: rgba(21, 101, 192, 0.1);
-  color: #1565c0;
-  padding: 4px 14px;
+  background: #e0e7ff;
+  color: #3730a3;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 :host-context(html.dark-mode) .count-badge {
-  background: rgba(66, 165, 245, 0.12);
-  color: #64b5f6;
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
 }
 
-/* ─── Add Card ─── */
+/* Add card */
 .add-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 :host-context(html.dark-mode) .add-card {
-  background: #1e2028;
+  background: #1e293b;
+  border-color: #334155;
 }
 
 .add-form {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
 }
 
-.add-input {
+.add-input-wrap {
+  position: relative;
   flex: 1;
 }
 
-.add-btn {
-  height: 48px;
-  border-radius: 12px !important;
-  font-weight: 700;
-  background: linear-gradient(135deg, #1565c0, #1e88e5) !important;
-  color: #fff !important;
+.add-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 15px;
+  pointer-events: none;
 }
 
-/* ─── Loading ─── */
+.add-input {
+  width: 100% !important;
+  padding-right: 38px !important;
+  border-radius: 10px !important;
+  font-family: 'Vazirmatn', sans-serif !important;
+}
+
+/* Loading */
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 64px;
+  padding: 60px 0;
 }
 
-/* ─── Types List ─── */
+.spinner-icon { font-size: 36px; color: #3b82f6; }
+
+/* Types list */
 .types-list {
   display: flex;
   flex-direction: column;
@@ -82,169 +94,97 @@
 
 .type-card {
   background: #fff;
-  border-radius: 14px;
-  padding: 4px 16px;
-  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  position: relative;
+  transition: box-shadow 0.15s ease;
 
-  &:hover {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  }
+  &:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
 }
 
 :host-context(html.dark-mode) .type-card {
-  background: #1e2028;
-
-  &:hover {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  }
+  background: #1e293b;
+  border-color: #334155;
 }
 
+/* Delete overlay */
+.delete-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 5;
+  border-radius: 12px;
+  padding: 0 16px;
+
+  p { color: #f1f5f9; font-size: 0.85rem; font-weight: 600; flex: 1; }
+}
+
+.warn-icon { font-size: 22px; color: #f59e0b; flex-shrink: 0; }
+
+.delete-actions { display: flex; gap: 6px; }
+
+/* Type row */
 .type-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 56px;
+  padding: 12px 16px;
 }
 
-.type-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(21, 101, 192, 0.08);
+.type-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #e0e7ff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-    color: #1565c0;
-  }
+  i { color: #4338ca; font-size: 16px; }
 }
 
-:host-context(html.dark-mode) .type-icon {
-  background: rgba(66, 165, 245, 0.1);
-
-  mat-icon {
-    color: #64b5f6;
-  }
+:host-context(html.dark-mode) .type-icon-wrap {
+  background: rgba(99, 102, 241, 0.15);
+  i { color: #a5b4fc; }
 }
 
 .type-name {
   flex: 1;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: #0f172a;
 }
 
-.type-actions {
-  display: flex;
-  gap: 2px;
+:host-context(html.dark-mode) .type-name { color: #f1f5f9; }
 
-  button {
-    opacity: 0.4;
-    transition: opacity 0.15s ease;
+.type-actions { display: flex; gap: 2px; }
 
-    &:hover {
-      opacity: 1;
-    }
-
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .delete-btn:hover {
-    color: #e11d48;
-  }
-}
-
-/* ─── Edit Row ─── */
+/* Edit row */
 .edit-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 56px;
+  gap: 6px;
+  padding: 10px 12px;
 }
 
 .edit-input {
-  flex: 1;
+  flex: 1 !important;
+  border-radius: 8px !important;
+  font-family: 'Vazirmatn', sans-serif !important;
 }
 
-.save-btn {
-  color: #2e7d32;
-}
-
-/* ─── Delete Overlay ─── */
-.delete-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(4px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  z-index: 10;
-  border-radius: 14px;
-
-  p {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0;
-  }
-}
-
-:host-context(html.dark-mode) .delete-overlay {
-  background: rgba(30, 32, 40, 0.96);
-}
-
-.delete-warn-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: #e11d48;
-  font-variation-settings: 'FILL' 1;
-}
-
-.delete-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.delete-confirm-btn {
-  background: #e11d48 !important;
-  color: #fff !important;
-  border-radius: 10px !important;
-  font-weight: 600;
-}
-
-.delete-cancel-btn {
-  border-radius: 10px !important;
-  font-weight: 600;
-}
-
-/* ─── Empty State ─── */
+/* Empty */
 .empty-state {
   text-align: center;
-  padding: 48px;
-  opacity: 0.5;
+  padding: 60px 20px;
 
-  .empty-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 12px;
-  }
-
-  p {
-    font-size: 0.95rem;
-  }
+  .empty-icon { font-size: 48px; color: #cbd5e1; display: block; margin-bottom: 12px; }
+  p { color: #94a3b8; font-size: 0.9rem; }
 }

@@ -2,30 +2,29 @@
   <div class="page-header">
     <div class="page-title-section">
       <h1 class="page-title">إدارة المستخدمين</h1>
-      <span class="user-badge">{{ users().length }} مستخدم</span>
+      <span class="count-badge">{{ users().length }} مستخدم</span>
     </div>
   </div>
 
   @if (loading()) {
     <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
+      <div class="spinner-wrap">
+        <i class="pi pi-spin pi-spinner spinner-icon"></i>
+      </div>
     </div>
   } @else {
     <div class="users-grid">
       @for (user of users(); track user.id) {
         <div class="user-card">
-          <!-- Delete confirmation overlay -->
           @if (deleteConfirmId() === user.id) {
             <div class="delete-overlay">
-              <mat-icon class="material-symbols-outlined delete-warn-icon">warning</mat-icon>
+              <i class="pi pi-exclamation-triangle delete-warn-icon"></i>
               <p>هل تريد حذف هذا المستخدم؟</p>
               <div class="delete-actions">
-                <button mat-flat-button class="delete-confirm-btn" (click)="executeDelete(user)">
-                  حذف
-                </button>
-                <button mat-button class="delete-cancel-btn" (click)="cancelDelete()">
-                  إلغاء
-                </button>
+                <p-button label="حذف" icon="pi pi-trash" severity="danger"
+                          size="small" (onClick)="executeDelete(user)" />
+                <p-button label="إلغاء" severity="secondary" [text]="true"
+                          size="small" (onClick)="cancelDelete()" />
               </div>
             </div>
           }
@@ -39,35 +38,28 @@
               <span class="user-username">&#64;{{ user.username }}</span>
             </div>
             <div class="card-actions">
-              <button mat-icon-button (click)="openEdit(user)" aria-label="تعديل المستخدم">
-                <mat-icon class="material-symbols-outlined">edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="confirmDelete(user)" aria-label="حذف المستخدم" class="delete-btn">
-                <mat-icon class="material-symbols-outlined">delete</mat-icon>
-              </button>
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true"
+                        size="small" (onClick)="openEdit(user)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true"
+                        size="small" severity="danger" (onClick)="confirmDelete(user)" />
             </div>
           </div>
 
           <div class="user-card-body">
-            <div class="user-meta">
-              <div class="meta-item">
-                <span class="meta-label">الصلاحية</span>
-                <mat-select [value]="user.role"
-                            (selectionChange)="changeRole(user, $event.value)"
-                            class="role-select">
-                  @for (r of roles; track r.value) {
-                    <mat-option [value]="r.value">{{ r.label }}</mat-option>
-                  }
-                </mat-select>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">الحالة</span>
-                <mat-slide-toggle
-                  [checked]="user.is_active"
-                  (change)="toggleActive(user)"
-                  color="primary">
+            <div class="meta-item">
+              <span class="meta-label">الصلاحية</span>
+              <p-select [options]="roles" optionLabel="label" optionValue="value"
+                        [(ngModel)]="user.role"
+                        (onChange)="changeRole(user, $event.value)"
+                        styleClass="role-select" />
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">الحالة</span>
+              <div class="toggle-wrap">
+                <p-toggleswitch [(ngModel)]="user.is_active" (onChange)="toggleActive(user, $event.checked)" />
+                <span class="toggle-label" [class.active]="user.is_active">
                   {{ user.is_active ? 'مفعّل' : 'معطّل' }}
-                </mat-slide-toggle>
+                </span>
               </div>
             </div>
           </div>

@@ -1,11 +1,10 @@
 import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
@@ -13,11 +12,10 @@ import { AuthService } from '../auth/auth.service';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    InputTextModule,
+    PasswordModule,
+    ButtonModule,
+    ProgressSpinnerModule,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -29,7 +27,6 @@ export class Login {
 
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly hidePassword = signal(true);
 
   protected readonly form = this.fb.nonNullable.group({
     username: ['', Validators.required],
