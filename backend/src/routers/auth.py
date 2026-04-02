@@ -1,3 +1,6 @@
+from datetime import date
+from decimal import Decimal
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +12,7 @@ from src.auth.auth import (
     verify_password,
 )
 from src.database.db import get_db
-from src.database.models import User
+from src.database.models import Payment, Supplier, User
 from src.models.auth import (
     LoginRequest,
     RegisterRequest,
@@ -148,3 +151,36 @@ async def seed_admin(db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(admin)
     return admin
+
+
+@router.post("/seed-payments", include_in_schema=False)
+async def seed_payments(db: AsyncSession = Depends(get_db)):
+    """بذر بيانات سدادات نموذجية إذا لم تكن موجودة."""
+    existing = (await db.scalar(select(func.count()).select_from(Payment))) or 0
+    if existing:
+        raise HTTPException(status_code=400, detail="بيانات السدادات موجودة مسبقاً")
+
+    result = await db.execute(select(Supplier).limit(3))
+    suppliers_list = result.scalars().all()
+    if not suppliers_list:
+        raise HTTPException(status_code=400, detail="لا يوجد موردون — أضف موردين أولاً")
+
+    admin = await db.scalar(select(User).where(User.username == "admin"))
+    if not admin:
+        raise HTTPException(status_code=400, detail="المستخدم الافتراضي غير موجود")
+
+    today = date.today()
+    sample_payments = []
+    for i, supplier in enumerate(suppliers_list):
+        sample_payments.append(Payment(
+            supplier_id=supplier.id,
+            payment_date=today,
+            payment_time=f"{9 + i:02d}:00",
+            amount=Decimal(str(500 * (i + 1))),
+            notes=f"سداد نموذجي رقم {i + 1}",
+            created_by=admin.id,
+        ))
+
+    db.add_all(sample_payments)
+    await db.commit()
+    return {"seeded": len(sample_payments)}

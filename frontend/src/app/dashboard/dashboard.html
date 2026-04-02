@@ -10,36 +10,78 @@
     </div>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    @for (stat of stats; track stat.title) {
-      <div class="stat-card">
-        <div class="stat-icon-wrap" [class]="stat.gradient">
-          <i class="pi {{ stat.icon }}"></i>
-        </div>
-        <div class="stat-body">
-          <span class="stat-title">{{ stat.title }}</span>
-          <div class="stat-value-row">
-            <span class="stat-value">{{ stat.value }}</span>
-            <span class="stat-unit">{{ stat.unit }}</span>
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else {
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      @for (stat of statCards(); track stat.title) {
+        <div class="stat-card">
+          <div class="stat-icon-wrap" [class]="stat.gradient">
+            <i class="pi {{ stat.icon }}"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-title">{{ stat.title }}</span>
+            <div class="stat-value-row">
+              @if (stat.isAmount) {
+                <span class="stat-value">{{ stat.value | number:'1.0-0' }}</span>
+                <span class="stat-unit">ر.س</span>
+              } @else {
+                <span class="stat-value">{{ stat.value }}</span>
+                <span class="stat-unit">{{ stat.unit }}</span>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="section">
-    <h2 class="section-title">إجراءات سريعة</h2>
-    <div class="actions-grid">
-      @for (action of quickActions; track action.label) {
-        <a class="action-card" [routerLink]="action.route">
-          <div class="action-icon">
-            <i class="pi {{ action.icon }}"></i>
-          </div>
-          <span class="action-label">{{ action.label }}</span>
-        </a>
       }
     </div>
-  </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card chart-bar">
+        <h2 class="chart-title">
+          <i class="pi pi-chart-bar"></i>
+          المقارنة الشهرية (آخر 6 أشهر)
+        </h2>
+        <div class="chart-body">
+          <p-chart
+            type="bar"
+            [data]="barChartData()"
+            [options]="barChartOptions"
+          />
+        </div>
+      </div>
+
+      <div class="chart-card chart-donut">
+        <h2 class="chart-title">
+          <i class="pi pi-chart-pie"></i>
+          توزيع الإجماليات
+        </h2>
+        <div class="chart-body">
+          <p-chart
+            type="doughnut"
+            [data]="donutChartData()"
+            [options]="donutChartOptions"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+      <h2 class="section-title">إجراءات سريعة</h2>
+      <div class="actions-grid">
+        @for (action of quickActions; track action.label) {
+          <a class="action-card" [routerLink]="action.route">
+            <div class="action-icon">
+              <i class="pi {{ action.icon }}"></i>
+            </div>
+            <span class="action-label">{{ action.label }}</span>
+          </a>
+        }
+      </div>
+    </div>
+  }
 </div>

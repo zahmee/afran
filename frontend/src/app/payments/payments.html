@@ -1,0 +1,159 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">السدادات</h1>
+      <p class="page-subtitle">
+        @if (!loading()) { {{ total() }} سجل إجمالي }
+      </p>
+    </div>
+    <p-button
+      label="إضافة سداد"
+      icon="pi pi-plus"
+      (onClick)="openDialog()"
+    />
+  </div>
+
+  <!-- فلاتر البحث -->
+  <div class="filters-bar">
+    <div class="search-field">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="بحث باسم المورد..."
+        [(ngModel)]="supplierName"
+        (input)="onSearchInput()"
+        aria-label="بحث باسم المورد"
+      />
+    </div>
+
+    <p-select
+      [options]="yearOptions"
+      [(ngModel)]="selectedYear"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="onFilterChange()"
+      [style]="{'min-width': '130px'}"
+      aria-label="فلتر السنة"
+    />
+
+    <p-select
+      [options]="monthOptions"
+      [(ngModel)]="selectedMonth"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="onFilterChange()"
+      [style]="{'min-width': '140px'}"
+      aria-label="فلتر الشهر"
+    />
+
+    <p-select
+      [options]="dayOptions"
+      [(ngModel)]="selectedDay"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="onFilterChange()"
+      [style]="{'min-width': '120px'}"
+      aria-label="فلتر اليوم"
+    />
+
+    <p-button
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      (onClick)="clearFilters()"
+      pTooltip="مسح الفلاتر"
+      tooltipPosition="top"
+      aria-label="مسح الفلاتر"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="4" />
+    </div>
+  } @else if (payments().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-wallet empty-icon"></i>
+      <p class="empty-text">لا توجد سجلات سدادات</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="payments-table" aria-label="جدول السدادات">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>المورد</th>
+            <th>التاريخ</th>
+            <th>الوقت</th>
+            <th>المبلغ (ر.س)</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of payments(); track p.id) {
+            <tr>
+              <td class="col-id">{{ p.id }}</td>
+              <td class="col-supplier">{{ p.supplier_name }}</td>
+              <td class="col-date">{{ p.payment_date | date:'yyyy/MM/dd' }}</td>
+              <td class="col-time">{{ p.payment_time }}</td>
+              <td class="col-amount">{{ p.amount | number:'1.2-2' }}</td>
+              <td class="col-actions">
+                <button
+                  class="action-btn edit-btn"
+                  (click)="openDialog(p)"
+                  pTooltip="تعديل"
+                  tooltipPosition="top"
+                  aria-label="تعديل السداد"
+                >
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button
+                  class="action-btn delete-btn"
+                  (click)="deletePayment(p)"
+                  [disabled]="deletingId() === p.id"
+                  pTooltip="حذف"
+                  tooltipPosition="top"
+                  aria-label="حذف السداد"
+                >
+                  <i class="pi"
+                    [class.pi-trash]="deletingId() !== p.id"
+                    [class.pi-spinner]="deletingId() === p.id"
+                    [class.pi-spin]="deletingId() === p.id"
+                  ></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- التصفح -->
+    <div class="pagination" aria-label="التصفح بين الصفحات">
+      <button
+        class="page-btn"
+        (click)="nextPage()"
+        [disabled]="!hasNext()"
+        aria-label="الصفحة التالية"
+      >
+        <i class="pi pi-angle-right"></i>
+      </button>
+
+      <span class="page-info">
+        صفحة {{ page() }} من {{ pages() }}
+        &nbsp;·&nbsp;
+        {{ total() }} سجل
+      </span>
+
+      <button
+        class="page-btn"
+        (click)="prevPage()"
+        [disabled]="!hasPrev()"
+        aria-label="الصفحة السابقة"
+      >
+        <i class="pi pi-angle-left"></i>
+      </button>
+    </div>
+  }
+</div>

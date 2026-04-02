@@ -153,6 +153,7 @@ class Payment(Base):
     supplier_id: Mapped[int] = mapped_column(ForeignKey("suppliers.id"))
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     payment_date: Mapped[date] = mapped_column(Date)
+    payment_time: Mapped[str] = mapped_column(String(5))  # HH:MM
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
