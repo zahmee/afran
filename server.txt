@@ -2,7 +2,7 @@ git pull
 cp .env.example .env
 # عدّل JWT_SECRET في .env
 # openssl rand -hex 32
-
+echo "JWT_SECRET=$(openssl rand -hex 32)" > .env
 docker compose up --build -d
 
 # أول مرة فقط: بذر البيانات
