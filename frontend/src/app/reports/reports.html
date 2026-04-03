@@ -1,0 +1,484 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">التقارير</h1>
+      <p class="page-subtitle">تقارير الموردين والبضاعة والمرتجعات والسدادات</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar" role="tablist" aria-label="تبويبات التقارير">
+    <button
+      role="tab"
+      class="tab-btn"
+      [class.active]="activeTab() === 'balances'"
+      [attr.aria-selected]="activeTab() === 'balances'"
+      (click)="switchTab('balances')"
+    >
+      <i class="pi pi-chart-bar"></i>
+      أرصدة الموردين
+    </button>
+    <button
+      role="tab"
+      class="tab-btn"
+      [class.active]="activeTab() === 'receipts'"
+      [attr.aria-selected]="activeTab() === 'receipts'"
+      (click)="switchTab('receipts')"
+    >
+      <i class="pi pi-shopping-cart"></i>
+      البضاعة المستلمة
+    </button>
+    <button
+      role="tab"
+      class="tab-btn"
+      [class.active]="activeTab() === 'returns'"
+      [attr.aria-selected]="activeTab() === 'returns'"
+      (click)="switchTab('returns')"
+    >
+      <i class="pi pi-undo"></i>
+      المرتجعات
+    </button>
+    <button
+      role="tab"
+      class="tab-btn"
+      [class.active]="activeTab() === 'payments'"
+      [attr.aria-selected]="activeTab() === 'payments'"
+      (click)="switchTab('payments')"
+    >
+      <i class="pi pi-wallet"></i>
+      السدادات
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- Tab 1: أرصدة الموردين                             -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (activeTab() === 'balances') {
+    <div role="tabpanel" aria-label="أرصدة الموردين">
+
+      @if (balancesLoading()) {
+        <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+      } @else if (balances()) {
+
+        <!-- بطاقات الإجماليات -->
+        <div class="summary-cards">
+          <div class="summary-card card-blue">
+            <span class="card-label">إجمالي البضاعة المستلمة</span>
+            <span class="card-value">{{ balances()!.total_goods_received | number:'1.2-2' }} <small>ر.س</small></span>
+          </div>
+          <div class="summary-card card-red">
+            <span class="card-label">إجمالي المرتجعات</span>
+            <span class="card-value">{{ balances()!.total_returns | number:'1.2-2' }} <small>ر.س</small></span>
+          </div>
+          <div class="summary-card card-green">
+            <span class="card-label">إجمالي ما دُفع</span>
+            <span class="card-value">{{ balances()!.total_paid | number:'1.2-2' }} <small>ر.س</small></span>
+          </div>
+          <div class="summary-card card-orange">
+            <span class="card-label">إجمالي الأرصدة المتبقية</span>
+            <span class="card-value">{{ balances()!.total_remaining_balance | number:'1.2-2' }} <small>ر.س</small></span>
+          </div>
+        </div>
+
+        <!-- بحث + تحديث -->
+        <div class="filters-bar">
+          <div class="search-field">
+            <i class="pi pi-search search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="بحث باسم المورد..."
+              [(ngModel)]="balanceSearch"
+              aria-label="بحث باسم المورد"
+            />
+          </div>
+          <p-button
+            icon="pi pi-refresh"
+            severity="secondary"
+            [text]="true"
+            (onClick)="refreshBalances()"
+            pTooltip="تحديث"
+            tooltipPosition="top"
+            aria-label="تحديث التقرير"
+          />
+        </div>
+
+        <!-- جدول الأرصدة -->
+        @if (filteredSuppliers().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-inbox empty-icon"></i>
+            <p class="empty-text">لا يوجد موردين</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="report-table" aria-label="جدول أرصدة الموردين">
+              <thead>
+                <tr>
+                  <th>المورد</th>
+                  <th>النوع</th>
+                  <th>نسبة العمولة</th>
+                  <th>البضاعة المستلمة (ر.س)</th>
+                  <th>المرتجعات (ر.س)</th>
+                  <th>الصافي (ر.س)</th>
+                  <th>العمولة المستحقة (ر.س)</th>
+                  <th>ما دُفع (ر.س)</th>
+                  <th>الرصيد المتبقي (ر.س)</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of filteredSuppliers(); track s.id) {
+                  <tr [class.inactive-row]="!s.is_active">
+                    <td class="col-name">{{ s.name }}</td>
+                    <td>{{ s.type_name ?? '—' }}</td>
+                    <td class="col-center">{{ s.sales_rate }}%</td>
+                    <td class="col-money">{{ s.total_goods_received | number:'1.2-2' }}</td>
+                    <td class="col-money col-danger">{{ s.total_returns | number:'1.2-2' }}</td>
+                    <td class="col-money">{{ s.net_goods | number:'1.2-2' }}</td>
+                    <td class="col-money col-accent">{{ s.commission_amount | number:'1.2-2' }}</td>
+                    <td class="col-money col-paid">{{ s.total_paid | number:'1.2-2' }}</td>
+                    <td class="col-money" [class.col-success]="s.remaining_balance <= 0" [class.col-warning]="s.remaining_balance > 0">
+                      {{ s.remaining_balance | number:'1.2-2' }}
+                    </td>
+                    <td>
+                      @if (s.is_active) {
+                        <span class="badge badge-active">نشط</span>
+                      } @else {
+                        <span class="badge badge-inactive">موقوف</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="table-footer">
+                  <td colspan="3">الإجمالي ({{ filteredSuppliers().length }} مورد)</td>
+                  <td class="col-money">{{ balances()!.total_goods_received | number:'1.2-2' }}</td>
+                  <td class="col-money col-danger">{{ balances()!.total_returns | number:'1.2-2' }}</td>
+                  <td></td>
+                  <td></td>
+                  <td class="col-money col-paid">{{ balances()!.total_paid | number:'1.2-2' }}</td>
+                  <td class="col-money col-warning">{{ balances()!.total_remaining_balance | number:'1.2-2' }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-chart-bar empty-icon"></i>
+          <p class="empty-text">جارٍ تحميل البيانات...</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- Tab 2: البضاعة المستلمة                           -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (activeTab() === 'receipts') {
+    <div role="tabpanel" aria-label="تقرير البضاعة المستلمة">
+
+      <div class="filters-bar">
+        <div class="search-field">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="بحث باسم المورد..."
+            [(ngModel)]="receiptsSupplierName"
+            (input)="onReceiptsFilterChange()"
+            aria-label="بحث باسم المورد"
+          />
+        </div>
+        <p-select
+          [options]="yearOptions"
+          [(ngModel)]="receiptsYear"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onReceiptsFilterChange()"
+          [style]="{'min-width': '130px'}"
+          aria-label="فلتر السنة"
+        />
+        <p-select
+          [options]="monthOptions"
+          [(ngModel)]="receiptsMonth"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onReceiptsFilterChange()"
+          [style]="{'min-width': '140px'}"
+          aria-label="فلتر الشهر"
+        />
+        <p-button
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          (onClick)="clearReceiptsFilters()"
+          pTooltip="مسح الفلاتر"
+          tooltipPosition="top"
+          aria-label="مسح الفلاتر"
+        />
+      </div>
+
+      @if (receiptsLoading()) {
+        <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+      } @else if (receipts().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-inbox empty-icon"></i>
+          <p class="empty-text">لا توجد سجلات</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="report-table" aria-label="جدول البضاعة المستلمة">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المورد</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>عدد البنود</th>
+                <th>الإجمالي (ر.س)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of receipts(); track r.id) {
+                <tr>
+                  <td class="col-id">{{ r.id }}</td>
+                  <td class="col-name">{{ r.supplier_name }}</td>
+                  <td class="col-date">{{ r.receipt_date }}</td>
+                  <td class="col-time">{{ r.receipt_time }}</td>
+                  <td class="col-center">{{ r.items_count }}</td>
+                  <td class="col-money col-accent">{{ r.total_amount | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="table-footer">
+                <td colspan="5">الإجمالي الكلي ({{ receiptsTotal() }} سجل)</td>
+                <td class="col-money col-accent">{{ receiptsGrandTotal() | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="pagination" aria-label="التصفح">
+          <button class="page-btn" (click)="receiptsNextPage()" [disabled]="receiptsPage() >= receiptsPages()" aria-label="التالي">
+            <i class="pi pi-angle-right"></i>
+          </button>
+          <span class="page-info">صفحة {{ receiptsPage() }} من {{ receiptsPages() }} · {{ receiptsTotal() }} سجل</span>
+          <button class="page-btn" (click)="receiptsPrevPage()" [disabled]="receiptsPage() <= 1" aria-label="السابق">
+            <i class="pi pi-angle-left"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- Tab 3: المرتجعات                                  -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (activeTab() === 'returns') {
+    <div role="tabpanel" aria-label="تقرير المرتجعات">
+
+      <div class="filters-bar">
+        <div class="search-field">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="بحث باسم المورد..."
+            [(ngModel)]="returnsSupplierName"
+            (input)="onReturnsFilterChange()"
+            aria-label="بحث باسم المورد"
+          />
+        </div>
+        <p-select
+          [options]="yearOptions"
+          [(ngModel)]="returnsYear"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onReturnsFilterChange()"
+          [style]="{'min-width': '130px'}"
+          aria-label="فلتر السنة"
+        />
+        <p-select
+          [options]="monthOptions"
+          [(ngModel)]="returnsMonth"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onReturnsFilterChange()"
+          [style]="{'min-width': '140px'}"
+          aria-label="فلتر الشهر"
+        />
+        <p-button
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          (onClick)="clearReturnsFilters()"
+          pTooltip="مسح الفلاتر"
+          tooltipPosition="top"
+          aria-label="مسح الفلاتر"
+        />
+      </div>
+
+      @if (returnsLoading()) {
+        <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+      } @else if (returns().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-inbox empty-icon"></i>
+          <p class="empty-text">لا توجد سجلات</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="report-table" aria-label="جدول المرتجعات">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المورد</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>عدد البنود</th>
+                <th>الإجمالي (ر.س)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of returns(); track r.id) {
+                <tr>
+                  <td class="col-id">{{ r.id }}</td>
+                  <td class="col-name">{{ r.supplier_name }}</td>
+                  <td class="col-date">{{ r.return_date }}</td>
+                  <td class="col-time">{{ r.return_time }}</td>
+                  <td class="col-center">{{ r.items_count }}</td>
+                  <td class="col-money col-danger">{{ r.total_amount | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="table-footer">
+                <td colspan="5">الإجمالي الكلي ({{ returnsTotal() }} سجل)</td>
+                <td class="col-money col-danger">{{ returnsGrandTotal() | number:'1.2-2' }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="pagination" aria-label="التصفح">
+          <button class="page-btn" (click)="returnsNextPage()" [disabled]="returnsPage() >= returnsPages()" aria-label="التالي">
+            <i class="pi pi-angle-right"></i>
+          </button>
+          <span class="page-info">صفحة {{ returnsPage() }} من {{ returnsPages() }} · {{ returnsTotal() }} سجل</span>
+          <button class="page-btn" (click)="returnsPrevPage()" [disabled]="returnsPage() <= 1" aria-label="السابق">
+            <i class="pi pi-angle-left"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- Tab 4: السدادات                                   -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (activeTab() === 'payments') {
+    <div role="tabpanel" aria-label="تقرير السدادات">
+
+      <div class="filters-bar">
+        <div class="search-field">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="بحث باسم المورد..."
+            [(ngModel)]="paymentsSupplierName"
+            (input)="onPaymentsFilterChange()"
+            aria-label="بحث باسم المورد"
+          />
+        </div>
+        <p-select
+          [options]="yearOptions"
+          [(ngModel)]="paymentsYear"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onPaymentsFilterChange()"
+          [style]="{'min-width': '130px'}"
+          aria-label="فلتر السنة"
+        />
+        <p-select
+          [options]="monthOptions"
+          [(ngModel)]="paymentsMonth"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onPaymentsFilterChange()"
+          [style]="{'min-width': '140px'}"
+          aria-label="فلتر الشهر"
+        />
+        <p-button
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          (onClick)="clearPaymentsFilters()"
+          pTooltip="مسح الفلاتر"
+          tooltipPosition="top"
+          aria-label="مسح الفلاتر"
+        />
+      </div>
+
+      @if (paymentsLoading()) {
+        <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+      } @else if (payments().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-inbox empty-icon"></i>
+          <p class="empty-text">لا توجد سجلات</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="report-table" aria-label="جدول السدادات">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المورد</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>المبلغ (ر.س)</th>
+                <th>الملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of payments(); track p.id) {
+                <tr>
+                  <td class="col-id">{{ p.id }}</td>
+                  <td class="col-name">{{ p.supplier_name }}</td>
+                  <td class="col-date">{{ p.payment_date }}</td>
+                  <td class="col-time">{{ p.payment_time }}</td>
+                  <td class="col-money col-success">{{ p.amount | number:'1.2-2' }}</td>
+                  <td class="col-notes">{{ p.notes ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="table-footer">
+                <td colspan="4">الإجمالي الكلي ({{ paymentsTotal() }} سجل)</td>
+                <td class="col-money col-success">{{ paymentsGrandTotal() | number:'1.2-2' }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="pagination" aria-label="التصفح">
+          <button class="page-btn" (click)="paymentsNextPage()" [disabled]="paymentsPage() >= paymentsPages()" aria-label="التالي">
+            <i class="pi pi-angle-right"></i>
+          </button>
+          <span class="page-info">صفحة {{ paymentsPage() }} من {{ paymentsPages() }} · {{ paymentsTotal() }} سجل</span>
+          <button class="page-btn" (click)="paymentsPrevPage()" [disabled]="paymentsPage() <= 1" aria-label="السابق">
+            <i class="pi pi-angle-left"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+</div>

@@ -6,7 +6,7 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser, check_delete_permission, check_write_permission
+from src.auth.auth import CurrentUser, check_delete_permission, check_not_reports, check_write_permission
 from src.database.db import get_db
 from src.database.models import Supplier, SupplierReturn, SupplierReturnItem
 from src.models.supplier_return import (
@@ -35,7 +35,7 @@ def _to_response(r: SupplierReturn) -> SupplierReturnResponse:
 
 def _apply_filters(q, supplier_name, year, month, day):
     if supplier_name:
-        q = q.join(SupplierReturn.supplier).where(Supplier.name.ilike(f"%{supplier_name}%"))
+        q = q.join(Supplier, SupplierReturn.supplier_id == Supplier.id).where(Supplier.name.ilike(f"%{supplier_name}%"))
     if year:
         q = q.where(extract("year", SupplierReturn.return_date) == year)
     if month:
@@ -160,7 +160,7 @@ async def update_return(
     if not ret:
         raise HTTPException(status_code=404, detail="سجل المرتجع غير موجود")
 
-    check_write_permission(user, ret.return_date)
+    check_not_reports(user)
 
     if body.supplier_id is not None:
         supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))

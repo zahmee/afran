@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, signal, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 import { DatePipe } from '@angular/common';
@@ -60,6 +60,12 @@ export class Suppliers implements OnInit {
   protected readonly suppliers = signal<Supplier[]>([]);
   protected readonly types = signal<SupplierType[]>([]);
   protected readonly loading = signal(true);
+  protected readonly searchQuery = signal('');
+  protected readonly filteredSuppliers = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return this.suppliers();
+    return this.suppliers().filter(s => s.name.toLowerCase().includes(q));
+  });
 
   ngOnInit() {
     this.loadData();

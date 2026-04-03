@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from src.database.db import Base, engine, async_session
 from src.database.models import SupplierType
-from src.routers import auth, goods_receipt, payments, stats, supplier_return, suppliers
+from src.routers import auth, goods_receipt, payments, reports, stats, supplier_return, suppliers
 
 
 @asynccontextmanager
@@ -45,6 +45,7 @@ app.include_router(goods_receipt.router)
 app.include_router(supplier_return.router)
 app.include_router(payments.router)
 app.include_router(stats.router)
+app.include_router(reports.router)
 
 
 @app.get("/")

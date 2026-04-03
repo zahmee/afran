@@ -6,7 +6,7 @@ from sqlalchemy import extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.auth.auth import CurrentUser, check_delete_permission, check_write_permission
+from src.auth.auth import CurrentUser, check_delete_permission, check_not_reports, check_write_permission
 from src.database.db import get_db
 from src.database.models import GoodsReceipt, GoodsReceiptItem, Supplier
 from src.models.goods_receipt import (
@@ -37,7 +37,7 @@ def _build_filters(q, supplier_name, year, month, day, joined_supplier=False):
     """يُضيف شروط الفلترة إلى الاستعلام."""
     if supplier_name:
         if not joined_supplier:
-            q = q.join(GoodsReceipt.supplier)
+            q = q.join(Supplier, GoodsReceipt.supplier_id == Supplier.id)
         q = q.where(Supplier.name.ilike(f"%{supplier_name}%"))
     if year:
         q = q.where(extract("year", GoodsReceipt.receipt_date) == year)
@@ -169,7 +169,7 @@ async def update_receipt(
     if not receipt:
         raise HTTPException(status_code=404, detail="سجل الاستلام غير موجود")
 
-    check_write_permission(user, receipt.receipt_date)
+    check_not_reports(user)
 
     if body.supplier_id is not None:
         supplier = await db.execute(select(Supplier).where(Supplier.id == body.supplier_id))

@@ -35,7 +35,7 @@ def _to_response(p: Payment) -> PaymentResponse:
 
 def _apply_filters(q, supplier_name, year, month, day):
     if supplier_name:
-        q = q.join(Payment.supplier).where(Supplier.name.ilike(f"%{supplier_name}%"))
+        q = q.join(Supplier, Payment.supplier_id == Supplier.id).where(Supplier.name.ilike(f"%{supplier_name}%"))
     if year:
         q = q.where(extract("year", Payment.payment_date) == year)
     if month:

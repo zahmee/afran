@@ -65,7 +65,7 @@
               <td class="col-count">{{ r.items_count }}</td>
               <td class="col-total">{{ r.total_amount | number:'1.2-2' }}</td>
               <td class="col-actions">
-                @if (auth.canEdit(r.return_date)) {
+                @if (auth.canEditAll()) {
                   <button class="action-btn edit-btn" (click)="editReturn(r.id)"
                     pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل المرتجع">
                     <i class="pi pi-pencil"></i>

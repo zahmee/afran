@@ -43,6 +43,11 @@ export class AuthService {
     return false;
   }
 
+  canEditAll(): boolean {
+    const role = this.user()?.role;
+    return role === 'admin' || role === 'data_entry';
+  }
+
   canDelete(): boolean {
     return this.user()?.role === 'admin';
   }

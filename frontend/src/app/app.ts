@@ -59,6 +59,7 @@ export class App {
   ];
 
   private readonly adminNavItems: NavItem[] = [
+    { label: 'التقارير', icon: 'pi-chart-bar', route: '/reports', adminOnly: true },
     { label: 'المستخدمين', icon: 'pi-user-edit', route: '/admin/users', adminOnly: true },
     { label: 'أنواع الموردين', icon: 'pi-tags', route: '/admin/supplier-types', adminOnly: true },
   ];

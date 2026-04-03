@@ -9,11 +9,26 @@
     }
   </div>
 
+  <!-- بحث -->
+  <div class="filters-bar">
+    <div class="search-field">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="بحث باسم المورد..."
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value)"
+        aria-label="بحث باسم المورد"
+      />
+    </div>
+  </div>
+
   @if (loading()) {
     <div class="loading-container">
       <p-progressspinner strokeWidth="4" styleClass="spinner" />
     </div>
-  } @else if (suppliers().length === 0) {
+  } @else if (filteredSuppliers().length === 0) {
     <div class="empty-state">
       <i class="pi pi-users empty-icon"></i>
       <p>لا يوجد موردين حالياً</p>
@@ -23,7 +38,7 @@
     </div>
   } @else {
     <div class="table-wrapper">
-      <p-table [value]="suppliers()" [tableStyle]="{'min-width': '800px'}"
+      <p-table [value]="filteredSuppliers()" [tableStyle]="{'min-width': '800px'}"
                styleClass="p-datatable-sm" [stripedRows]="true">
         <ng-template #header>
           <tr>
