@@ -1,0 +1,11 @@
+git pull
+cp .env.example .env
+# عدّل JWT_SECRET في .env
+# openssl rand -hex 32
+
+docker compose up --build -d
+
+# أول مرة فقط: بذر البيانات
+curl -X POST http://localhost:8090/api/auth/seed
+النظام سيكون متاحاً على: http://your-server:8090
+

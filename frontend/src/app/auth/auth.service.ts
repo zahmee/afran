@@ -16,7 +16,7 @@ interface TokenResponse {
   token_type: string;
 }
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

@@ -13,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 const ROWS = 10;
 
 interface Supplier { id: number; name: string; is_active: boolean; }

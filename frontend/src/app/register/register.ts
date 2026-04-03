@@ -7,7 +7,7 @@ import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { firstValueFrom } from 'rxjs';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 
 @Component({
   selector: 'app-register',

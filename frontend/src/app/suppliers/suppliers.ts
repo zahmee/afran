@@ -14,7 +14,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { SupplierDialog } from './supplier-dialog';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 
 export interface SupplierType {
   id: number;

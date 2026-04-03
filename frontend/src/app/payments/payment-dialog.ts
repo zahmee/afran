@@ -15,7 +15,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { firstValueFrom } from 'rxjs';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 
 interface Payment {
   id: number;

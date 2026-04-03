@@ -1,0 +1,338 @@
+<div class="page">
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- عرض: قائمة اليوميات                               -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (viewMode() === 'list') {
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">يومية الصندوق</h1>
+        <p class="page-subtitle">
+          @if (!loading()) { {{ total() }} يومية مسجلة }
+        </p>
+      </div>
+      @if (auth.canAdd()) {
+        <button class="btn-primary" (click)="openNewForm()">
+          <i class="pi pi-plus"></i>
+          يومية جديدة
+        </button>
+      }
+    </div>
+
+    <!-- فلاتر -->
+    <div class="filters-bar">
+      <p-select
+        [options]="yearOptions"
+        [(ngModel)]="selectedYear"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onFilterChange()"
+        [style]="{'min-width': '130px'}"
+        aria-label="فلتر السنة"
+      />
+      <p-select
+        [options]="monthOptions"
+        [(ngModel)]="selectedMonth"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onFilterChange()"
+        [style]="{'min-width': '140px'}"
+        aria-label="فلتر الشهر"
+      />
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state"><p-progressSpinner strokeWidth="4" /></div>
+    } @else if (registers().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا توجد يوميات مسجلة</p>
+        @if (auth.canAdd()) {
+          <button class="btn-primary" (click)="openNewForm()">
+            <i class="pi pi-plus"></i>
+            سجّل يومية اليوم
+          </button>
+        }
+      </div>
+    } @else {
+
+      <div class="table-wrapper">
+        <table class="register-table" aria-label="جدول يوميات الصندوق">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>رصيد أول اليوم</th>
+              <th>نقاط البيع</th>
+              <th>سحب البنك</th>
+              <th>مدفوع للأسر</th>
+              <th>مصاريف</th>
+              <th>رصيد نهاية اليوم</th>
+              <th>صافي البيع</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of registers(); track r.id) {
+              <tr>
+                <td class="col-date">{{ r.register_date }}</td>
+                <td class="col-money">{{ r.opening_balance | number:'1.2-2' }}</td>
+                <td class="col-money col-accent">{{ r.pos_total | number:'1.2-2' }}</td>
+                <td class="col-money col-bank">{{ r.bank_withdrawal | number:'1.2-2' }}</td>
+                <td class="col-money col-danger">{{ r.paid_to_suppliers | number:'1.2-2' }}</td>
+                <td class="col-money col-danger">{{ r.misc_expenses | number:'1.2-2' }}</td>
+                <td class="col-money" [class.col-success]="r.closing_balance >= 0" [class.col-danger]="r.closing_balance < 0">
+                  {{ r.closing_balance | number:'1.2-2' }}
+                </td>
+                <td class="col-money" [class.col-success]="r.net_sales >= 0" [class.col-danger]="r.net_sales < 0">
+                  {{ r.net_sales | number:'1.2-2' }}
+                </td>
+                <td class="col-actions">
+                  @if (auth.canEditAll()) {
+                    <button class="action-btn edit-btn" (click)="openEditForm(r)"
+                      pTooltip="تعديل" tooltipPosition="top" aria-label="تعديل اليومية">
+                      <i class="pi pi-pencil"></i>
+                    </button>
+                  }
+                  @if (auth.canDelete()) {
+                    <button class="action-btn delete-btn" (click)="deleteRegister(r)"
+                      [disabled]="deletingId() === r.id"
+                      pTooltip="حذف" tooltipPosition="top" aria-label="حذف اليومية">
+                      <i class="pi"
+                        [class.pi-trash]="deletingId() !== r.id"
+                        [class.pi-spinner]="deletingId() === r.id"
+                        [class.pi-spin]="deletingId() === r.id"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- التصفح -->
+      <div class="pagination" aria-label="التصفح">
+        <button class="page-btn" (click)="nextPage()" [disabled]="!hasNext()" aria-label="التالي">
+          <i class="pi pi-angle-right"></i>
+        </button>
+        <span class="page-info">صفحة {{ page() }} من {{ pages() }} · {{ total() }} يومية</span>
+        <button class="page-btn" (click)="prevPage()" [disabled]="!hasPrev()" aria-label="السابق">
+          <i class="pi pi-angle-left"></i>
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- عرض: فورم الإدخال                                 -->
+  <!-- ══════════════════════════════════════════════════ -->
+  @if (viewMode() === 'form') {
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">يومية الصندوق</h1>
+        <p class="page-subtitle">تسجيل حركة الصندوق اليومية</p>
+      </div>
+      <button class="btn-secondary" (click)="cancelForm()">
+        <i class="pi pi-arrow-right"></i>
+        رجوع
+      </button>
+    </div>
+
+    <div class="form-layout">
+
+      <!-- عمود الإدخال -->
+      <div class="form-card">
+
+        <!-- التاريخ -->
+        <div class="form-section">
+          <h2 class="section-title">
+            <i class="pi pi-calendar"></i>
+            التاريخ
+          </h2>
+          <div class="field">
+            <label for="f-date" class="field-label">تاريخ اليومية</label>
+            <input
+              id="f-date"
+              type="date"
+              class="field-input"
+              [(ngModel)]="formDate"
+              (change)="onDateChange()"
+              aria-label="تاريخ اليومية"
+            />
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- الداخل -->
+        <div class="form-section">
+          <h2 class="section-title section-in">
+            <i class="pi pi-arrow-circle-down"></i>
+            الداخل (مصادر النقد)
+          </h2>
+          <div class="field">
+            <label for="f-opening" class="field-label">رصيد أول اليوم (ر.س)</label>
+            <input
+              id="f-opening"
+              type="number"
+              class="field-input"
+              [(ngModel)]="formOpeningBalance"
+              min="0"
+              step="0.01"
+              aria-label="رصيد أول اليوم"
+            />
+          </div>
+          <div class="field">
+            <label for="f-pos" class="field-label">إجمالي نقاط البيع (ر.س)</label>
+            <input
+              id="f-pos"
+              type="number"
+              class="field-input field-highlight"
+              [(ngModel)]="formPosTotal"
+              min="0"
+              step="0.01"
+              aria-label="إجمالي نقاط البيع"
+            />
+          </div>
+          <div class="field">
+            <label for="f-bank" class="field-label">سحب من البنك (ر.س)</label>
+            <input
+              id="f-bank"
+              type="number"
+              class="field-input"
+              [(ngModel)]="formBankWithdrawal"
+              min="0"
+              step="0.01"
+              aria-label="سحب من البنك"
+            />
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- الخارج -->
+        <div class="form-section">
+          <h2 class="section-title section-out">
+            <i class="pi pi-arrow-circle-up"></i>
+            الخارج (المدفوعات)
+          </h2>
+
+          <!-- مدفوع للأسر — محسوب تلقائياً -->
+          <div class="field">
+            <label class="field-label">
+              مدفوع للأسر نقداً (ر.س)
+              @if (loadingPaid()) {
+                <i class="pi pi-spin pi-spinner" style="font-size:0.8rem; margin-right: 0.5rem;"></i>
+              } @else {
+                <span class="auto-badge">تلقائي من السدادات</span>
+              }
+            </label>
+            <div class="readonly-field">{{ paidToSuppliers() | number:'1.2-2' }}</div>
+          </div>
+
+          <div class="field">
+            <label for="f-misc" class="field-label">مصاريف متنوعة (ر.س)</label>
+            <input
+              id="f-misc"
+              type="number"
+              class="field-input"
+              [(ngModel)]="formMiscExpenses"
+              min="0"
+              step="0.01"
+              aria-label="مصاريف متنوعة"
+            />
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- ملاحظات -->
+        <div class="form-section">
+          <div class="field">
+            <label for="f-notes" class="field-label">ملاحظات</label>
+            <textarea
+              id="f-notes"
+              class="field-input field-textarea"
+              [(ngModel)]="formNotes"
+              placeholder="أي ملاحظات إضافية..."
+              rows="3"
+              aria-label="ملاحظات"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" (click)="save()" [disabled]="saving()">
+            @if (saving()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-check"></i>
+            }
+            حفظ اليومية
+          </button>
+          <button class="btn-secondary" (click)="cancelForm()">إلغاء</button>
+        </div>
+
+      </div>
+
+      <!-- عمود الملخص المحسوب -->
+      <div class="summary-panel">
+        <h2 class="summary-title">
+          <i class="pi pi-calculator"></i>
+          ملخص اليوم
+        </h2>
+
+        <div class="summary-block summary-in">
+          <div class="summary-block-title">إجمالي الداخل</div>
+          <div class="summary-row">
+            <span>رصيد أول اليوم</span>
+            <span>{{ formOpeningBalance | number:'1.2-2' }} ر.س</span>
+          </div>
+          <div class="summary-row">
+            <span>نقاط البيع</span>
+            <span>{{ formPosTotal | number:'1.2-2' }} ر.س</span>
+          </div>
+          <div class="summary-row">
+            <span>سحب البنك</span>
+            <span>{{ formBankWithdrawal | number:'1.2-2' }} ر.س</span>
+          </div>
+          <div class="summary-total">
+            <span>المجموع</span>
+            <span>{{ formTotalIn() | number:'1.2-2' }} ر.س</span>
+          </div>
+        </div>
+
+        <div class="summary-block summary-out">
+          <div class="summary-block-title">إجمالي الخارج</div>
+          <div class="summary-row">
+            <span>مدفوع للأسر</span>
+            <span>{{ paidToSuppliers() | number:'1.2-2' }} ر.س</span>
+          </div>
+          <div class="summary-row">
+            <span>مصاريف متنوعة</span>
+            <span>{{ formMiscExpenses | number:'1.2-2' }} ر.س</span>
+          </div>
+          <div class="summary-total">
+            <span>المجموع</span>
+            <span>{{ formTotalOut() | number:'1.2-2' }} ر.س</span>
+          </div>
+        </div>
+
+        <div class="summary-result" [class.result-positive]="formClosingBalance() >= 0" [class.result-negative]="formClosingBalance() < 0">
+          <div class="result-label">رصيد نهاية اليوم</div>
+          <div class="result-value">{{ formClosingBalance() | number:'1.2-2' }} ر.س</div>
+        </div>
+
+        <div class="summary-result result-net">
+          <div class="result-label">صافي البيع (إيراد المحل)</div>
+          <div class="result-value">{{ formNetSales() | number:'1.2-2' }} ر.س</div>
+          <div class="result-hint">نقاط البيع − مدفوع للأسر</div>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

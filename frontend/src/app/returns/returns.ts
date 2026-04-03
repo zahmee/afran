@@ -20,7 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 const PAGE_SIZE = 20;
 
 interface ReturnItem { id: number; quantity: number; unit_price: number; total: number; }

@@ -56,6 +56,7 @@ export class App {
     { label: 'الموردين', icon: 'pi-users', route: '/suppliers' },
     { label: 'المرتجعات', icon: 'pi-undo', route: '/returns' },
     { label: 'السدادات', icon: 'pi-wallet', route: '/payments' },
+    { label: 'يومية الصندوق', icon: 'pi-calculator', route: '/cash-register' },
   ];
 
   private readonly adminNavItems: NavItem[] = [

@@ -21,7 +21,7 @@ import { MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { PaymentDialog } from './payment-dialog';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 const PAGE_SIZE = 20;
 
 export interface Payment {

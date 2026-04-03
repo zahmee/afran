@@ -14,7 +14,7 @@ import { ChartModule } from 'primeng/chart';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../auth/auth.service';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 
 interface MonthlyPoint {
   month: string;

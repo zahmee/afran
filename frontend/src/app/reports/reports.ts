@@ -17,7 +17,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 
-const API = 'http://localhost:8011';
+import { API } from '../api.config';
 const PAGE_SIZE = 50;
 
 // ─── Interfaces ────────────────────────────────────────

@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
 import { User } from '../../auth/auth.service';
 import { EditUserDialog } from './edit-user-dialog';
 
-const API = 'http://localhost:8011';
+import { API } from '../../api.config';
 
 @Component({
   selector: 'app-users',

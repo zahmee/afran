@@ -6,7 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { firstValueFrom } from 'rxjs';
 
-const API = 'http://localhost:8011';
+import { API } from '../../api.config';
 
 interface SupplierType {
   id: number;

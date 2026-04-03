@@ -211,6 +211,27 @@ class GoodsReceipt(Base):
     )
 
 
+# ─── DailyCashRegister (يومية الصندوق) ──────────────────
+class DailyCashRegister(Base):
+    __tablename__ = "daily_cash_registers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    register_date: Mapped[date] = mapped_column(Date, unique=True, index=True,
+        comment="تاريخ اليومية — يوم واحد فقط")
+    opening_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0"),
+        comment="رصيد أول اليوم")
+    pos_total: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0"),
+        comment="إجمالي نقاط البيع")
+    bank_withdrawal: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0"),
+        comment="سحب من البنك")
+    misc_expenses: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0"),
+        comment="مصاريف متنوعة")
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
+
+
 # ─── GoodsReceiptItem (بنود استلام البضاعة) ─────────────
 class GoodsReceiptItem(Base):
     __tablename__ = "goods_receipt_items"
