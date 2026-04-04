@@ -18,7 +18,8 @@
           <label for="supplier_id" class="field-label">اسم المورد</label>
           <p-select inputId="supplier_id" formControlName="supplier_id"
             [options]="suppliers()" optionLabel="name" optionValue="id"
-            placeholder="اختر المورد..." [style]="{'width': '100%'}" />
+            placeholder="اختر المورد..." [filter]="true" filterBy="name"
+            filterPlaceholder="ابحث عن مورد..." [style]="{'width': '100%'}" />
         </div>
         <div class="field">
           <label for="return_date" class="field-label">التاريخ</label>
