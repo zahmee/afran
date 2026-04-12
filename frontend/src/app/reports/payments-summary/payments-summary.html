@@ -1,0 +1,88 @@
+<div class="page">
+  <div class="print-header">
+    <h2>تقرير السدادات</h2>
+    <div class="print-date">
+      من {{ startDate }} إلى {{ endDate }} — طُبع في {{ today | date: 'yyyy-MM-dd HH:mm' }}
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">تقرير السدادات</h1>
+      <p class="page-subtitle">السدادات المسدّدة لكل مورد خلال فترة محددة</p>
+    </div>
+    <div class="header-actions">
+      <p-button icon="pi pi-print" label="طباعة" severity="secondary"
+                (onClick)="print()" [disabled]="!data() || data()!.rows.length === 0" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-field">
+      <label class="filter-label">من تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="startDate" (change)="load()" />
+    </div>
+    <div class="filter-field">
+      <label class="filter-label">إلى تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="endDate" (change)="load()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="summary-cards">
+      <div class="summary-card card-orange">
+        <span class="card-label">إجمالي المسدّد</span>
+        <span class="card-value">{{ d.total_paid | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-blue">
+        <span class="card-label">عدد السدادات</span>
+        <span class="card-value">{{ d.total_count }}</span>
+      </div>
+      <div class="summary-card card-purple">
+        <span class="card-label">عدد الموردين المسدّد لهم</span>
+        <span class="card-value">{{ d.rows.length }}</span>
+      </div>
+    </div>
+
+    @if (d.rows.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا توجد سدادات في هذه الفترة</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>المورد</th>
+              <th>النوع</th>
+              <th class="col-center">عدد السدادات</th>
+              <th class="col-center">إجمالي المسدّد</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of d.rows; track row.supplier_id) {
+              <tr>
+                <td class="col-name">{{ row.supplier_name }}</td>
+                <td>{{ row.type_name ?? '—' }}</td>
+                <td class="col-center">{{ row.payments_count }}</td>
+                <td class="col-paid">{{ row.total_paid | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">الإجمالي</td>
+              <td class="col-center">{{ d.total_count }}</td>
+              <td class="col-money">{{ d.total_paid | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

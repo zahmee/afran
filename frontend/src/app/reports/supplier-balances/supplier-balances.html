@@ -1,0 +1,106 @@
+<div class="page">
+  <div class="print-header">
+    <h2>أرصدة الموردين</h2>
+    <div class="print-date">طُبع في {{ today | date: 'yyyy-MM-dd HH:mm' }}</div>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">أرصدة الموردين</h1>
+      <p class="page-subtitle">الموردين النشطين ورصيدهم الحالي (مستلم - عمولة - سدادات)</p>
+    </div>
+    <div class="header-actions">
+      <p-button icon="pi pi-refresh" severity="secondary" [text]="true"
+                pTooltip="تحديث" (onClick)="load()" />
+      <p-button icon="pi pi-print" label="طباعة" severity="secondary"
+                (onClick)="print()" [disabled]="!data() || data()!.suppliers.length === 0" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-field" style="flex: 1; min-width: 220px;">
+      <label class="filter-label">بحث باسم المورد</label>
+      <input type="text" class="filter-input" placeholder="ابحث..."
+             [(ngModel)]="search" (input)="onSearch()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="summary-cards">
+      <div class="summary-card card-purple">
+        <span class="card-label">عدد الموردين النشطين</span>
+        <span class="card-value">{{ d.active_suppliers }}</span>
+      </div>
+      <div class="summary-card card-blue">
+        <span class="card-label">إجمالي البضاعة المستلمة</span>
+        <span class="card-value">{{ d.total_goods_received | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-orange">
+        <span class="card-label">إجمالي المسدّد</span>
+        <span class="card-value">{{ d.total_paid | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-red">
+        <span class="card-label">الرصيد المتبقي (الكل)</span>
+        <span class="card-value">{{ d.total_remaining_balance | number: '1.2-2' }}</span>
+      </div>
+    </div>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا يوجد موردين</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>المورد</th>
+              <th>النوع</th>
+              <th class="col-center">النسبة</th>
+              <th class="col-center">رصيد افتتاحي</th>
+              <th class="col-center">مستلم</th>
+              <th class="col-center">مرتجعات</th>
+              <th class="col-center">عمولة</th>
+              <th class="col-center">مسدّد</th>
+              <th class="col-center">الرصيد</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of filtered(); track s.id) {
+              <tr>
+                <td class="col-name">{{ s.name }}</td>
+                <td>{{ s.type_name ?? '—' }}</td>
+                <td class="col-center">{{ s.sales_rate | number: '1.0-2' }}%</td>
+                <td class="col-money">{{ s.opening_balance | number: '1.2-2' }}</td>
+                <td class="col-accent">{{ s.total_goods_received | number: '1.2-2' }}</td>
+                <td class="col-danger">{{ s.total_returns | number: '1.2-2' }}</td>
+                <td class="col-money">{{ s.commission_amount | number: '1.2-2' }}</td>
+                <td class="col-paid">{{ s.total_paid | number: '1.2-2' }}</td>
+                <td class="col-money"
+                    [class.col-success]="s.remaining_balance >= 0"
+                    [class.col-danger]="s.remaining_balance < 0">
+                  {{ s.remaining_balance | number: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">الإجمالي</td>
+              <td class="col-money">{{ d.total_goods_received | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_returns | number: '1.2-2' }}</td>
+              <td></td>
+              <td class="col-money">{{ d.total_paid | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_remaining_balance | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

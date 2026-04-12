@@ -1,0 +1,103 @@
+<div class="page">
+  <div class="print-header">
+    <h2>تقرير الصندوق الشهري</h2>
+    <div class="print-date">
+      {{ monthLabel() }} {{ year }} — طُبع في {{ today | date: 'yyyy-MM-dd HH:mm' }}
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">تقرير الصندوق الشهري</h1>
+      <p class="page-subtitle">ملخص يومية الصندوق خلال شهر محدد</p>
+    </div>
+    <div class="header-actions">
+      <p-button icon="pi pi-print" label="طباعة" severity="secondary"
+                (onClick)="print()" [disabled]="!data() || data()!.rows.length === 0" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-field" style="min-width: 160px;">
+      <label class="filter-label">السنة</label>
+      <p-select [options]="yearOptions" [(ngModel)]="year"
+                optionLabel="label" optionValue="value"
+                styleClass="w-full" (onChange)="load()" />
+    </div>
+    <div class="filter-field" style="min-width: 180px;">
+      <label class="filter-label">الشهر</label>
+      <p-select [options]="monthOptions" [(ngModel)]="month"
+                optionLabel="label" optionValue="value"
+                styleClass="w-full" (onChange)="load()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="summary-cards">
+      <div class="summary-card card-blue">
+        <span class="card-label">إجمالي نقاط البيع</span>
+        <span class="card-value">{{ d.total_pos | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-purple">
+        <span class="card-label">إجمالي السحب البنكي</span>
+        <span class="card-value">{{ d.total_withdrawal | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-red">
+        <span class="card-label">إجمالي المصاريف</span>
+        <span class="card-value">{{ d.total_expenses | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-green">
+        <span class="card-label">إجمالي رصيد الإقفال</span>
+        <span class="card-value">{{ d.total_closing | number: '1.2-2' }}</span>
+      </div>
+    </div>
+
+    @if (d.rows.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا توجد يوميات مسجّلة في هذا الشهر</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th class="col-center">رصيد أول المدة</th>
+              <th class="col-center">نقاط البيع</th>
+              <th class="col-center">سحب بنكي</th>
+              <th class="col-center">مصاريف</th>
+              <th class="col-center">رصيد الإقفال</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of d.rows; track row.register_date) {
+              <tr>
+                <td class="col-date">{{ row.register_date }}</td>
+                <td class="col-money">{{ row.opening_balance | number: '1.2-2' }}</td>
+                <td class="col-accent">{{ row.pos_total | number: '1.2-2' }}</td>
+                <td class="col-paid">{{ row.bank_withdrawal | number: '1.2-2' }}</td>
+                <td class="col-danger">{{ row.misc_expenses | number: '1.2-2' }}</td>
+                <td class="col-success">{{ row.closing_balance | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>الإجمالي</td>
+              <td class="col-money">{{ d.total_opening | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_pos | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_withdrawal | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_expenses | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_closing | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

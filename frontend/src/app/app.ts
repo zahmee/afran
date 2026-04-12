@@ -59,13 +59,23 @@ export class App {
     { label: 'يومية الصندوق', icon: 'pi-calculator', route: '/cash-register' },
   ];
 
+  private readonly reportNavItems: NavItem[] = [
+    { label: 'التقرير اليومي', icon: 'pi-calendar', route: '/reports/daily-summary' },
+    { label: 'كشف حساب مورد', icon: 'pi-file', route: '/reports/supplier-statement' },
+    { label: 'أرصدة الموردين', icon: 'pi-balance-scale', route: '/reports/supplier-balances' },
+    { label: 'تقرير السدادات', icon: 'pi-credit-card', route: '/reports/payments-summary' },
+    { label: 'الصندوق الشهري', icon: 'pi-chart-line', route: '/reports/cash-monthly' },
+  ];
+
   private readonly adminNavItems: NavItem[] = [
-    { label: 'التقارير', icon: 'pi-chart-bar', route: '/reports', adminOnly: true },
+    { label: 'تقارير الإدارة', icon: 'pi-chart-bar', route: '/reports', adminOnly: true },
     { label: 'المستخدمين', icon: 'pi-user-edit', route: '/admin/users', adminOnly: true },
     { label: 'أنواع الموردين', icon: 'pi-tags', route: '/admin/supplier-types', adminOnly: true },
   ];
 
   protected readonly navItems = computed(() => this.allNavItems);
+
+  protected readonly reportItems = computed(() => this.reportNavItems);
 
   protected readonly adminItems = computed(() => {
     const role = this.auth.user()?.role;

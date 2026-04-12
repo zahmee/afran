@@ -1,0 +1,96 @@
+<div class="page">
+  <div class="print-header">
+    <h2>التقرير اليومي الإجمالي</h2>
+    <div class="print-date">
+      من {{ startDate }} إلى {{ endDate }} — طُبع في {{ today | date: 'yyyy-MM-dd HH:mm' }}
+    </div>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">التقرير اليومي الإجمالي</h1>
+      <p class="page-subtitle">ملخص يومي للبضاعة المستلمة والمرتجعات والسدادات</p>
+    </div>
+    <div class="header-actions">
+      <p-button icon="pi pi-print" label="طباعة" severity="secondary"
+                (onClick)="print()" [disabled]="!data() || data()!.rows.length === 0" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-field">
+      <label class="filter-label">من تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="startDate" (change)="load()" />
+    </div>
+    <div class="filter-field">
+      <label class="filter-label">إلى تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="endDate" (change)="load()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="summary-cards">
+      <div class="summary-card card-blue">
+        <span class="card-label">إجمالي البضاعة المستلمة</span>
+        <span class="card-value">{{ d.total_goods_received | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-red">
+        <span class="card-label">إجمالي المرتجعات</span>
+        <span class="card-value">{{ d.total_returns | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-green">
+        <span class="card-label">صافي البضاعة</span>
+        <span class="card-value">{{ d.total_net | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-orange">
+        <span class="card-label">إجمالي السدادات</span>
+        <span class="card-value">{{ d.total_payments | number: '1.2-2' }}</span>
+      </div>
+    </div>
+
+    @if (d.rows.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا توجد بيانات في هذه الفترة</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th class="col-center">البضاعة المستلمة</th>
+              <th class="col-center">المرتجعات</th>
+              <th class="col-center">صافي البضاعة</th>
+              <th class="col-center">السدادات</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of d.rows; track row.day) {
+              <tr>
+                <td class="col-date">{{ row.day }}</td>
+                <td class="col-accent">{{ row.total_goods_received | number: '1.2-2' }}</td>
+                <td class="col-danger">{{ row.total_returns | number: '1.2-2' }}</td>
+                <td class="col-success">{{ row.net_received | number: '1.2-2' }}</td>
+                <td class="col-paid">{{ row.total_payments | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>الإجمالي</td>
+              <td class="col-money">{{ d.total_goods_received | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_returns | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_net | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.total_payments | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

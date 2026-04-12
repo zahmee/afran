@@ -68,6 +68,31 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
   },
   {
+    path: 'reports/daily-summary',
+    loadComponent: () => import('./reports/daily-summary/daily-summary').then(m => m.DailySummary),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reports/supplier-statement',
+    loadComponent: () => import('./reports/supplier-statement/supplier-statement').then(m => m.SupplierStatement),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reports/supplier-balances',
+    loadComponent: () => import('./reports/supplier-balances/supplier-balances').then(m => m.SupplierBalances),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reports/payments-summary',
+    loadComponent: () => import('./reports/payments-summary/payments-summary').then(m => m.PaymentsSummary),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reports/cash-monthly',
+    loadComponent: () => import('./reports/cash-monthly/cash-monthly').then(m => m.CashMonthly),
+    canActivate: [authGuard],
+  },
+  {
     path: 'admin/users',
     loadComponent: () => import('./admin/users/users').then(m => m.Users),
     canActivate: [authGuard, adminGuard],

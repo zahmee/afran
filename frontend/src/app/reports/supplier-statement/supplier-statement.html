@@ -1,0 +1,111 @@
+<div class="page">
+  <div class="print-header">
+    <h2>كشف حساب مورد</h2>
+    @if (data(); as d) {
+      <div class="print-date">
+        {{ d.supplier_name }} — من {{ startDate }} إلى {{ endDate }} — طُبع في {{ today | date: 'yyyy-MM-dd HH:mm' }}
+      </div>
+    }
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">كشف حساب مورد</h1>
+      <p class="page-subtitle">عرض كل حركات المورد (مستلمة، مرتجعات، سدادات) خلال فترة محددة</p>
+    </div>
+    <div class="header-actions">
+      <p-button icon="pi pi-print" label="طباعة" severity="secondary"
+                (onClick)="print()" [disabled]="!data() || data()!.entries.length === 0" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="filter-field" style="min-width: 240px;">
+      <label class="filter-label">المورد</label>
+      <p-select [options]="suppliers()" [(ngModel)]="supplierId"
+                optionLabel="name" optionValue="id" placeholder="اختر مورد"
+                styleClass="w-full" (onChange)="load()" />
+    </div>
+    <div class="filter-field">
+      <label class="filter-label">من تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="startDate" (change)="load()" />
+    </div>
+    <div class="filter-field">
+      <label class="filter-label">إلى تاريخ</label>
+      <input type="date" class="filter-input" [(ngModel)]="endDate" (change)="load()" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <p-progressSpinner strokeWidth="3" />
+    </div>
+  } @else if (data(); as d) {
+    <div class="summary-cards">
+      <div class="summary-card card-purple">
+        <span class="card-label">المورد</span>
+        <span class="card-value" style="direction: rtl; font-size: 1.05rem;">{{ d.supplier_name }}</span>
+      </div>
+      <div class="summary-card card-orange">
+        <span class="card-label">رصيد افتتاحي</span>
+        <span class="card-value">{{ d.opening_balance | number: '1.2-2' }}</span>
+      </div>
+      <div class="summary-card card-blue">
+        <span class="card-label">نسبة العمولة</span>
+        <span class="card-value">{{ d.sales_rate | number: '1.0-2' }}%</span>
+      </div>
+      <div class="summary-card" [class.card-green]="d.closing_balance >= 0" [class.card-red]="d.closing_balance < 0">
+        <span class="card-label">الرصيد الختامي</span>
+        <span class="card-value">{{ d.closing_balance | number: '1.2-2' }}</span>
+      </div>
+    </div>
+
+    @if (d.entries.length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-inbox empty-icon"></i>
+        <p class="empty-text">لا توجد حركات في هذه الفترة</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>النوع</th>
+              <th class="col-center">مدين (مستلم)</th>
+              <th class="col-center">دائن (مرتجع/سداد)</th>
+              <th class="col-center">الرصيد الجاري</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of d.entries; track $index) {
+              <tr>
+                <td class="col-date">{{ e.entry_date }}</td>
+                <td>{{ typeLabel(e.entry_type) }}</td>
+                <td class="col-accent">
+                  @if (e.debit > 0) { {{ e.debit | number: '1.2-2' }} }
+                </td>
+                <td class="col-danger">
+                  @if (e.credit > 0) { {{ e.credit | number: '1.2-2' }} }
+                </td>
+                <td class="col-money"
+                    [class.col-success]="e.running_balance >= 0"
+                    [class.col-danger]="e.running_balance < 0">
+                  {{ e.running_balance | number: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">الإجماليات</td>
+              <td class="col-money">{{ d.total_receipts | number: '1.2-2' }}</td>
+              <td class="col-money">{{ (d.total_returns + d.total_payments) | number: '1.2-2' }}</td>
+              <td class="col-money">{{ d.closing_balance | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

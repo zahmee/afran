@@ -23,6 +23,16 @@
           </a>
         }
 
+        <div class="nav-divider"></div>
+        <div class="nav-section-label">التقارير</div>
+        @for (item of reportItems(); track item.route) {
+          <a class="nav-link" [routerLink]="item.route" routerLinkActive="active"
+             [pTooltip]="!sidenavOpen() ? item.label : ''" tooltipPosition="left">
+            <i class="pi {{ item.icon }} nav-icon"></i>
+            <span class="nav-label">{{ item.label }}</span>
+          </a>
+        }
+
         @if (adminItems().length) {
           <div class="nav-divider"></div>
           <div class="nav-section-label">الإدارة</div>
