@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
@@ -70,6 +70,7 @@ type ViewMode = 'list' | 'form';
 @Component({
   selector: 'app-cash-register',
   imports: [
+    DatePipe,
     DecimalPipe,
     FormsModule,
     SelectModule,
@@ -89,9 +90,34 @@ export class CashRegister implements OnInit {
   // ─── List state ─────────────────────────────────────
   protected readonly registers = signal<CashRegisterRecord[]>([]);
   protected readonly total = signal(0);
+  protected readonly totalAmount = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.closing_balance || 0), 0)
+  );
+  protected readonly totalOpening = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.opening_balance || 0), 0)
+  );
+  protected readonly totalPos = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.pos_total || 0), 0)
+  );
+  protected readonly totalBank = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.bank_withdrawal || 0), 0)
+  );
+  protected readonly totalPaid = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.paid_to_suppliers || 0), 0)
+  );
+  protected readonly totalExpenses = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.misc_expenses || 0), 0)
+  );
+  protected readonly totalClosing = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.closing_balance || 0), 0)
+  );
+  protected readonly totalNet = computed(() =>
+    this.registers().reduce((sum, r) => sum + (r.net_sales || 0), 0)
+  );
   protected readonly page = signal(1);
   protected readonly loading = signal(true);
   protected readonly deletingId = signal<number | null>(null);
+  protected today = new Date();
   protected selectedYear: number | null = new Date().getFullYear();
   protected selectedMonth: number | null = null;
 
@@ -284,4 +310,6 @@ export class CashRegister implements OnInit {
       this.deletingId.set(null);
     }
   }
+
+  protected print() { window.print(); }
 }

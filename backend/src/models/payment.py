@@ -76,6 +76,7 @@ class PaymentResponse(BaseModel):
 class PaginatedPaymentResponse(BaseModel):
     items: list[PaymentResponse]
     total: int
+    total_amount: Decimal
     page: int
     pages: int
     page_size: int

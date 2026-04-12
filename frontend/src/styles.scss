@@ -184,3 +184,55 @@ html.dark-mode {
     }
   }
 }
+
+/* ─── Print Styles ─── */
+@media print {
+  // Page settings
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  // إخفاء العناصر غير المطلوبة
+  .sidebar,
+  .top-bar,
+  .menu-btn,
+  .p-toast {
+    display: none !important;
+  }
+
+  // إظهار المحتوى الكامل
+  .layout {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .main-wrapper {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .content-area {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  // إعادة تعيين html و body
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}

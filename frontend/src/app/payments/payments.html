@@ -1,14 +1,31 @@
 <div class="page">
+  <!-- طباعة فقط -->
+  <div class="print-header">
+    <h1>تقرير السدادات</h1>
+    <p>تاريخ الطباعة: {{ today | date:'yyyy/MM/dd HH:mm' }}</p>
+  </div>
+
   <div class="page-header">
-    <div>
+    <div class="header-right">
       <h1 class="page-title">السدادات</h1>
       <p class="page-subtitle">
         @if (!loading()) { {{ total() }} سجل إجمالي }
       </p>
     </div>
-    @if (auth.canAdd()) {
-      <p-button label="إضافة سداد" icon="pi pi-plus" (onClick)="openDialog()" />
-    }
+    <div class="header-actions">
+      @if (auth.canAdd()) {
+        <p-button label="إضافة سداد" icon="pi pi-plus" (onClick)="openDialog()" />
+      }
+      <p-button
+        label="طباعة"
+        icon="pi pi-print"
+        severity="secondary"
+        (onClick)="print()"
+        [disabled]="payments().length === 0"
+        class="print-btn"
+        aria-label="طباعة"
+      />
+    </div>
   </div>
 
   <!-- فلاتر البحث -->
@@ -117,6 +134,12 @@
           }
         </tbody>
       </table>
+
+      <!-- الإجمالي -->
+      <div class="table-footer">
+        <div class="footer-label">الإجمالي</div>
+        <div class="footer-value">{{ totalAmount() | number:'1.2-2' }} ر.س</div>
+      </div>
     </div>
 
     <!-- التصفح -->

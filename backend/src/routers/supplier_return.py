@@ -61,6 +61,12 @@ async def list_returns(
     count_q = _apply_filters(select(func.count()).select_from(SupplierReturn), supplier_name, year, month, day)
     total: int = (await db.scalar(count_q)) or 0
 
+    total_amount_q = _apply_filters(
+        select(func.coalesce(func.sum(SupplierReturn.total_amount), Decimal('0'))),
+        supplier_name, year, month, day,
+    )
+    total_amount: Decimal = (await db.scalar(total_amount_q)) or Decimal('0')
+
     data_q = _apply_filters(
         select(SupplierReturn).options(
             selectinload(SupplierReturn.supplier), selectinload(SupplierReturn.items)
@@ -78,6 +84,7 @@ async def list_returns(
     return PaginatedSupplierReturnResponse(
         items=[_to_response(r) for r in result.scalars().all()],
         total=total,
+        total_amount=total_amount,
         page=page,
         pages=math.ceil(total / page_size) if total else 1,
         page_size=page_size,

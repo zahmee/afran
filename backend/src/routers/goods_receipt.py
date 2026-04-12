@@ -33,11 +33,9 @@ def _to_response(r: GoodsReceipt) -> GoodsReceiptResponse:
     )
 
 
-def _build_filters(q, supplier_name, year, month, day, joined_supplier=False):
+def _build_filters(q, supplier_name, year, month, day):
     """يُضيف شروط الفلترة إلى الاستعلام."""
     if supplier_name:
-        if not joined_supplier:
-            q = q.join(Supplier, GoodsReceipt.supplier_id == Supplier.id)
         q = q.where(Supplier.name.ilike(f"%{supplier_name}%"))
     if year:
         q = q.where(extract("year", GoodsReceipt.receipt_date) == year)
@@ -61,19 +59,28 @@ async def list_receipts(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
 ):
-    needs_join = bool(supplier_name)
-
     # استعلام العدد
     count_q = select(func.count()).select_from(GoodsReceipt)
-    count_q = _build_filters(count_q, supplier_name, year, month, day, joined_supplier=needs_join)
+    if supplier_name:
+        count_q = count_q.join(Supplier, GoodsReceipt.supplier_id == Supplier.id)
+    count_q = _build_filters(count_q, supplier_name, year, month, day)
     total: int = (await db.scalar(count_q)) or 0
+
+    # استعلام إجمالي المبلغ
+    total_amount_q = select(func.coalesce(func.sum(GoodsReceipt.total_amount), Decimal("0")))
+    if supplier_name:
+        total_amount_q = total_amount_q.join(Supplier, GoodsReceipt.supplier_id == Supplier.id)
+    total_amount_q = _build_filters(total_amount_q, supplier_name, year, month, day)
+    total_amount: Decimal = (await db.scalar(total_amount_q)) or Decimal("0")
 
     # استعلام البيانات
     data_q = (
         select(GoodsReceipt)
         .options(selectinload(GoodsReceipt.supplier), selectinload(GoodsReceipt.items))
     )
-    data_q = _build_filters(data_q, supplier_name, year, month, day, joined_supplier=needs_join)
+    if supplier_name:
+        data_q = data_q.join(Supplier, GoodsReceipt.supplier_id == Supplier.id)
+    data_q = _build_filters(data_q, supplier_name, year, month, day)
     data_q = (
         data_q
         .order_by(GoodsReceipt.receipt_date.desc(), GoodsReceipt.id.desc())
@@ -86,6 +93,7 @@ async def list_receipts(
     return PaginatedGoodsReceiptResponse(
         items=[_to_response(r) for r in rows],
         total=total,
+        total_amount=total_amount,
         page=page,
         pages=math.ceil(total / page_size) if total else 1,
         page_size=page_size,

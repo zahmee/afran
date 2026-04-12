@@ -2,10 +2,10 @@ import {
   BaseStyle,
   config_default,
   service_default
-} from "./chunk-NZBTNSVO.js";
+} from "./chunk-PYJIILZI.js";
 import {
   FilterMatchMode
-} from "./chunk-ST5LMY3E.js";
+} from "./chunk-4XDFNADE.js";
 import {
   Injectable,
   PLATFORM_ID,
@@ -342,4 +342,4 @@ export {
   PRIME_NG_CONFIG,
   providePrimeNG
 };
-//# sourceMappingURL=chunk-ICVNH67R.js.map
+//# sourceMappingURL=chunk-ILLI3XD7.js.map

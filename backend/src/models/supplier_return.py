@@ -95,6 +95,7 @@ class SupplierReturnResponse(BaseModel):
 class PaginatedSupplierReturnResponse(BaseModel):
     items: list[SupplierReturnResponse]
     total: int
+    total_amount: Decimal
     page: int
     pages: int
     page_size: int

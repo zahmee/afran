@@ -31,7 +31,7 @@ interface SupplierReturn {
   items: ReturnItem[];
 }
 interface PaginatedResponse {
-  items: SupplierReturn[]; total: number; page: number; pages: number; page_size: number;
+  items: SupplierReturn[]; total: number; total_amount: number; page: number; pages: number; page_size: number;
 }
 interface SelectOption { label: string; value: number | null; }
 
@@ -68,10 +68,12 @@ export class Returns implements OnInit, OnDestroy {
 
   protected readonly returns = signal<SupplierReturn[]>([]);
   protected readonly total = signal(0);
+  protected readonly totalAmount = signal(0);
   protected readonly page = signal(1);
   protected readonly loading = signal(true);
   protected readonly deletingId = signal<number | null>(null);
   protected readonly expandedId = signal<number | null>(null);
+  protected today = new Date();
 
   private readonly _today = new Date();
   protected supplierName = '';
@@ -108,6 +110,7 @@ export class Returns implements OnInit, OnDestroy {
       );
       this.returns.set(res.items);
       this.total.set(res.total);
+      this.totalAmount.set(res.total_amount);
     } finally {
       this.loading.set(false);
     }
@@ -127,6 +130,8 @@ export class Returns implements OnInit, OnDestroy {
   protected newReturn() { this.router.navigate(['/return-entry']); }
   protected editReturn(id: number) { this.router.navigate(['/returns', id, 'edit']); }
   protected toggleExpand(id: number) { this.expandedId.update(cur => cur === id ? null : id); }
+
+  protected print() { window.print(); }
 
   protected async deleteReturn(r: SupplierReturn) {
     this.deletingId.set(r.id);

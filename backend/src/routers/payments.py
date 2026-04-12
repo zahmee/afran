@@ -64,6 +64,13 @@ async def list_payments(
     )
     total: int = (await db.scalar(count_q)) or 0
 
+    # حساب إجمالي المبلغ للفلاتر الحالية
+    total_amount_q = _apply_filters(
+        select(func.coalesce(func.sum(Payment.amount), Decimal("0"))),
+        supplier_name, year, month, day,
+    )
+    total_amount: Decimal = (await db.scalar(total_amount_q)) or Decimal("0")
+
     data_q = _apply_filters(
         select(Payment).options(selectinload(Payment.supplier)),
         supplier_name, year, month, day,
@@ -79,6 +86,7 @@ async def list_payments(
     return PaginatedPaymentResponse(
         items=[_to_response(p) for p in result.scalars().all()],
         total=total,
+        total_amount=total_amount,
         page=page,
         pages=math.ceil(total / page_size) if total else 1,
         page_size=page_size,

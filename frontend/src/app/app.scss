@@ -315,3 +315,39 @@
     padding: 16px;
   }
 }
+
+/* ─── Print Styles ─── */
+@media print {
+  :host {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .layout {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .sidebar,
+  .top-bar,
+  .menu-btn {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .content-area {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+}

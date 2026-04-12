@@ -3,13 +3,29 @@
 }
 
 .page {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
 
 .page-header {
-  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .page-title {
@@ -37,6 +53,7 @@
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  align-items: end;
 
   @media (max-width: 680px) {
     grid-template-columns: 1fr 1fr;
@@ -47,6 +64,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: 100%;
 }
 
 .field-label {
@@ -66,6 +84,7 @@
   background: #fff;
   outline: none;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   transition: border-color 0.15s;
 
@@ -88,6 +107,7 @@
   font-weight: 700;
   color: #0f172a;
   direction: ltr;
+  min-width: 0;
 
   .currency {
     font-size: 0.75rem;
@@ -209,26 +229,28 @@
   font-weight: 400;
 }
 
-// ─── تذييل الجدول ───────────────────────────────────────
+// ─── المجموع الكلي ─────────────────────────────────────
 
-tfoot .footer-row {
-  border-top: 2px solid #e2e8f0;
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1.25rem;
   background: #f8fafc;
+  border-top: 2px solid #e2e8f0;
+}
 
-  .footer-label {
-    font-weight: 600;
-    color: #374151;
-    padding: 0.625rem 0.75rem;
-    text-align: start;
-  }
+.footer-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
 
-  .footer-total {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #0f172a;
-    direction: ltr;
-    padding: 0.625rem 0.75rem;
-  }
+.footer-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #059669;
+  direction: ltr;
 }
 
 // ─── أزرار ──────────────────────────────────────────────
@@ -236,6 +258,65 @@ tfoot .footer-row {
 .actions {
   display: flex;
   justify-content: flex-end;
+}
+
+// ─── طباعة ──────────────────────────────────────────────
+
+.print-header {
+  display: none;
+}
+
+@media print {
+  ::ng-deep .print-header {
+    display: block !important;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #000;
+
+    h1 { font-size: 1.25rem; margin: 0 0 0.25rem; }
+    p  { font-size: 0.85rem; margin: 0; color: #444; }
+  }
+
+  ::ng-deep .page-header { display: none !important; }
+  ::ng-deep .header-actions { display: none !important; }
+  ::ng-deep .actions { display: none !important; }
+
+  .page {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .header-card {
+    box-shadow: none;
+    border-color: #333;
+  }
+
+  .items-section {
+    box-shadow: none;
+    border-color: #333;
+  }
+
+  ::ng-deep .table-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.5rem 0.75rem !important;
+    background: #fff !important;
+    border-top: 2px solid #000 !important;
+  }
+
+  ::ng-deep .footer-label {
+    font-size: 0.9rem !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+  }
+
+  ::ng-deep .footer-value {
+    font-size: 0.95rem !important;
+    color: #000 !important;
+    direction: ltr !important;
+    font-weight: 700 !important;
+  }
 }
 
 // ─── حالة التحميل ──────────────────────────────────────
@@ -258,6 +339,14 @@ tfoot .footer-row {
     background: #1e293b;
     border-color: #334155;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .header-actions {
+    ::ng-deep .p-button {
+      background: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
   }
 
   .field-label       { color: #94a3b8; }
@@ -307,11 +396,11 @@ tfoot .footer-row {
     }
   }
 
-  tfoot .footer-row {
-    background: #0f172a;
-    border-top-color: #334155;
-
-    .footer-label  { color: #cbd5e1; }
-    .footer-total  { color: #f1f5f9; }
+  .table-footer {
+    background: #1e293b !important;
+    border-top-color: #334155 !important;
   }
+
+  .footer-label { color: #f1f5f9; }
+  .footer-value { color: #4ade80; }
 }

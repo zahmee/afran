@@ -38,6 +38,7 @@ export interface Payment {
 interface PaginatedResponse {
   items: Payment[];
   total: number;
+  total_amount: number;
   page: number;
   pages: number;
   page_size: number;
@@ -98,6 +99,7 @@ export class Payments implements OnInit, OnDestroy {
 
   protected readonly payments = signal<Payment[]>([]);
   protected readonly total = signal(0);
+  protected readonly totalAmount = signal(0);
   protected readonly page = signal(1);
   protected readonly loading = signal(true);
   protected readonly deletingId = signal<number | null>(null);
@@ -115,6 +117,7 @@ export class Payments implements OnInit, OnDestroy {
   protected readonly yearOptions = buildYearOptions();
   protected readonly monthOptions = MONTH_OPTIONS;
   protected readonly dayOptions = buildDayOptions();
+  protected readonly today = new Date();
 
   ngOnInit() {
     this.searchSubject.pipe(debounceTime(400)).subscribe(() => {
@@ -146,6 +149,7 @@ export class Payments implements OnInit, OnDestroy {
       );
       this.payments.set(res.items);
       this.total.set(res.total);
+      this.totalAmount.set(res.total_amount);
     } finally {
       this.loading.set(false);
     }
@@ -194,6 +198,10 @@ export class Payments implements OnInit, OnDestroy {
     this.ref.onClose.subscribe((result: boolean) => {
       if (result) this.loadData();
     });
+  }
+
+  protected print() {
+    window.print();
   }
 
   protected async deletePayment(payment: Payment) {

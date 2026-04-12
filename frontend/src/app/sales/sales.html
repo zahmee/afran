@@ -1,8 +1,25 @@
 <div class="page">
+  <!-- طباعة فقط -->
+  <div class="print-header">
+    <h1>تقرير البضاعة المستلمة</h1>
+    <p>تاريخ الطباعة: {{ today | date:'yyyy/MM/dd HH:mm' }}</p>
+  </div>
+
   <div class="page-header">
-    <div>
+    <div class="header-right">
       <h1 class="page-title">استلام البضاعة</h1>
       <p class="page-subtitle">تسجيل بضاعة مستلمة من المورد</p>
+    </div>
+    <div class="header-actions">
+      <p-button
+        type="button"
+        label="طباعة"
+        icon="pi pi-print"
+        severity="secondary"
+        (onClick)="print()"
+        class="print-btn"
+        aria-label="طباعة"
+      />
     </div>
   </div>
 
@@ -27,7 +44,7 @@
             [filter]="true"
             filterBy="name"
             filterPlaceholder="ابحث عن مورد..."
-            [style]="{'width': '100%'}"
+            [style]="{'width': '100%', 'min-width': '0'}"
           />
         </div>
 
@@ -122,13 +139,13 @@
                 </tr>
               }
             </tbody>
-            <tfoot>
-              <tr class="footer-row">
-                <td colspan="4" class="footer-label">المجموع الكلي</td>
-                <td class="footer-total">{{ total() | number:'1.2-2' }}</td>
-              </tr>
-            </tfoot>
           </table>
+        </div>
+
+        <!-- المجموع الكلي -->
+        <div class="table-footer">
+          <div class="footer-label">المجموع الكلي</div>
+          <div class="footer-value">{{ total() | number:'1.2-2' }} ر.س</div>
         </div>
       </div>
 

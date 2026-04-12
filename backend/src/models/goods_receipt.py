@@ -104,6 +104,7 @@ class GoodsReceiptResponse(BaseModel):
 class PaginatedGoodsReceiptResponse(BaseModel):
     items: list[GoodsReceiptResponse]
     total: int
+    total_amount: Decimal
     page: int
     pages: int
     page_size: int

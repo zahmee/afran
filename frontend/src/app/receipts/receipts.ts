@@ -46,6 +46,7 @@ interface GoodsReceipt {
 interface PaginatedResponse {
   items: GoodsReceipt[];
   total: number;
+  total_amount: number;
   page: number;
   pages: number;
   page_size: number;
@@ -107,10 +108,12 @@ export class Receipts implements OnInit, OnDestroy {
 
   protected readonly receipts = signal<GoodsReceipt[]>([]);
   protected readonly total = signal(0);
+  protected readonly totalAmount = signal(0);
   protected readonly page = signal(1);
   protected readonly loading = signal(true);
   protected readonly deletingId = signal<number | null>(null);
   protected readonly expandedId = signal<number | null>(null);
+  protected today = new Date();
 
   // فلاتر — تبدأ بتاريخ اليوم
   private readonly _today = new Date();
@@ -156,6 +159,7 @@ export class Receipts implements OnInit, OnDestroy {
       );
       this.receipts.set(res.items);
       this.total.set(res.total);
+      this.totalAmount.set(res.total_amount);
     } finally {
       this.loading.set(false);
     }
@@ -199,6 +203,10 @@ export class Receipts implements OnInit, OnDestroy {
 
   protected toggleExpand(id: number) {
     this.expandedId.update(cur => (cur === id ? null : id));
+  }
+
+  protected print() {
+    window.print();
   }
 
   protected editReceipt(id: number) {

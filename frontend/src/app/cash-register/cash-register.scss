@@ -1,7 +1,7 @@
 :host { display: block; }
 
 .page {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
@@ -70,14 +70,14 @@
 // ─── Filters ─────────────────────────────────────────────
 
 .filters-bar {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 0.875rem 1rem;
+  padding: 0.625rem 0.75rem;
   margin-bottom: 1.25rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -110,7 +110,6 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   margin-bottom: 1rem;
   overflow-x: auto;
@@ -119,7 +118,8 @@
 .register-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.82rem;
+  table-layout: auto;
 
   thead tr {
     background: #f8fafc;
@@ -127,11 +127,13 @@
   }
 
   th {
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.5rem;
     font-weight: 600;
     color: #475569;
-    text-align: start;
-    white-space: nowrap;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+    font-size: 0.78rem;
   }
 
   tbody tr {
@@ -143,19 +145,38 @@
   }
 
   td {
-    padding: 0.7rem 1rem;
+    padding: 0.65rem 0.5rem;
     color: #1e293b;
     vertical-align: middle;
   }
 }
 
-.col-date    { font-weight: 600; color: #334155; white-space: nowrap; }
-.col-money   { direction: ltr; text-align: start; font-variant-numeric: tabular-nums; }
+.col-date    { font-weight: 600; color: #334155; white-space: nowrap; text-align: center; }
+.col-money   { direction: ltr; text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .col-accent  { color: #6366f1; font-weight: 600; }
 .col-bank    { color: #0284c7; }
 .col-success { color: #059669; font-weight: 600; }
 .col-danger  { color: #dc2626; }
-.col-actions { width: 90px; }
+.col-actions { width: 78px; text-align: center; white-space: nowrap; }
+
+// ─── ملخص الجدول ─────────────────────────────────────
+
+.register-table tfoot {
+  background: #f8fafc;
+  border-top: 2px solid #e2e8f0;
+
+  td {
+    padding: 0.7rem 0.5rem;
+    font-weight: 700;
+    vertical-align: middle;
+    font-size: 0.85rem;
+  }
+
+  .col-date {
+    color: #334155;
+    font-weight: 700;
+  }
+}
 
 .action-btn {
   display: inline-flex;
@@ -437,6 +458,14 @@
   margin-top: 0.25rem;
 }
 
+// ─── Header Actions ──────────────────────────────────────
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 // ─── Dark Mode ───────────────────────────────────────────
 
 :host-context(html.dark-mode) {
@@ -465,6 +494,18 @@
   }
 
   .col-date { color: #cbd5e1; }
+
+  .register-table tfoot {
+    background: #1e293b !important;
+    border-top-color: #334155 !important;
+
+    td { color: #f1f5f9; }
+    .col-date { color: #f1f5f9; }
+    .col-accent { color: #a5b4fc; }
+    .col-bank { color: #38bdf8; }
+    .col-success { color: #4ade80; }
+    .col-danger { color: #f87171; }
+  }
 
   .edit-btn {
     color: #818cf8;
@@ -510,4 +551,63 @@
   .result-net      { background: #1e1b4b; border-color: #4f46e5; }
   .result-value    { color: #f1f5f9; }
   .result-hint     { color: #64748b; }
+}
+
+// ─── طباعة ───────────────────────────────────────────────
+
+.print-header { display: none; }
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 1rem;
+  }
+
+  ::ng-deep html, ::ng-deep body {
+    overflow: visible !important;
+    height: auto !important;
+    width: auto !important;
+  }
+
+  ::ng-deep .print-header {
+    display: block !important;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #000;
+    h1 { font-size: 1.25rem; margin: 0 0 0.25rem; }
+    p  { font-size: 0.85rem; margin: 0; color: #444; }
+  }
+  ::ng-deep .page-header    { display: none !important; }
+  ::ng-deep .filters-bar     { display: none !important; }
+  ::ng-deep .pagination      { display: none !important; }
+  ::ng-deep .btn-primary     { display: none !important; }
+  ::ng-deep .action-btn      { display: none !important; }
+  ::ng-deep .form-layout     { display: none !important; }
+
+  ::ng-deep .page { max-width: 100%; padding: 0; margin: 0; }
+  ::ng-deep .table-wrapper {
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  ::ng-deep .register-table {
+    display: block !important;
+    width: 100% !important;
+    border-collapse: collapse;
+  }
+  ::ng-deep .register-table th,
+  ::ng-deep .register-table td {
+    border: 1px solid #333;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  ::ng-deep .col-date { white-space: nowrap; }
+  ::ng-deep .col-money { direction: ltr; text-align: start; }
+}
+
+:host-context(html.dark-mode) {
+  @media print {
+    ::ng-deep .print-header h1 { color: #000; }
+    ::ng-deep .register-table { thead tr { background: #eee !important; } td { color: #000; } }
+  }
 }

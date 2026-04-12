@@ -85,6 +85,8 @@ function maxAmountValidator(getMax: () => number | null): ValidatorFn {
             optionLabel="name"
             optionValue="id"
             placeholder="اختر المورد"
+            [filter]="true"
+            filterPlaceholder="ابحث باسم المورد..."
             styleClass="w-full"
             [loading]="loadingSuppliers()"
           />
@@ -101,7 +103,9 @@ function maxAmountValidator(getMax: () => number | null): ValidatorFn {
               id="payment_date"
               formControlName="payment_date"
               dateFormat="yy/mm/dd"
+              showIcon="true"
               styleClass="w-full"
+              appendTo="body"
             />
           </div>
           <div class="field">

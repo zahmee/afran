@@ -9,7 +9,7 @@ import {
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
@@ -43,6 +43,7 @@ function nowTimeStr(): string {
   selector: 'app-sales',
   imports: [
     DecimalPipe,
+    DatePipe,
     ReactiveFormsModule,
     SelectModule,
     ButtonModule,
@@ -61,6 +62,7 @@ export class Sales implements OnInit {
   protected readonly suppliers = signal<Supplier[]>([]);
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
+  protected readonly today = new Date();
 
   protected readonly rowIndices = Array.from({ length: ROWS }, (_, i) => i);
 
@@ -116,6 +118,10 @@ export class Sales implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  protected print() {
+    window.print();
   }
 
   protected async save() {

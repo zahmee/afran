@@ -1,5 +1,11 @@
 <div class="page">
 
+  <!-- طباعة فقط -->
+  <div class="print-header">
+    <h1>تقرير يومية الصندوق</h1>
+    <p>تاريخ الطباعة: {{ today | date:'yyyy/MM/dd HH:mm' }}</p>
+  </div>
+
   <!-- ══════════════════════════════════════════════════ -->
   <!-- عرض: قائمة اليوميات                               -->
   <!-- ══════════════════════════════════════════════════ -->
@@ -12,12 +18,22 @@
           @if (!loading()) { {{ total() }} يومية مسجلة }
         </p>
       </div>
-      @if (auth.canAdd()) {
-        <button class="btn-primary" (click)="openNewForm()">
-          <i class="pi pi-plus"></i>
-          يومية جديدة
-        </button>
-      }
+      <div class="header-actions">
+        @if (auth.canAdd()) {
+          <button class="btn-primary" (click)="openNewForm()">
+            <i class="pi pi-plus"></i>
+            يومية جديدة
+          </button>
+        }
+        <p-button
+          label="طباعة"
+          icon="pi pi-print"
+          severity="secondary"
+          (onClick)="print()"
+          class="print-btn"
+          aria-label="طباعة"
+        />
+      </div>
     </div>
 
     <!-- فلاتر -->
@@ -61,15 +77,15 @@
         <table class="register-table" aria-label="جدول يوميات الصندوق">
           <thead>
             <tr>
-              <th>التاريخ</th>
-              <th>رصيد أول اليوم</th>
-              <th>نقاط البيع</th>
-              <th>سحب البنك</th>
-              <th>مدفوع للأسر</th>
+              <th class="th-date">التاريخ</th>
+              <th>رصيد<br>أول المدة</th>
+              <th>نقاط<br>البيع</th>
+              <th>سحب<br>البنك</th>
+              <th>مدفوع<br>للأسر</th>
               <th>مصاريف</th>
-              <th>رصيد نهاية اليوم</th>
-              <th>صافي البيع</th>
-              <th></th>
+              <th>رصيد<br>آخر المدة</th>
+              <th>صافي<br>البيع</th>
+              <th class="th-actions"></th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +124,23 @@
               </tr>
             }
           </tbody>
+          <tfoot>
+            <tr>
+              <td class="col-date">الإجمالي</td>
+              <td class="col-money">{{ totalOpening() | number:'1.2-2' }}</td>
+              <td class="col-money col-accent">{{ totalPos() | number:'1.2-2' }}</td>
+              <td class="col-money col-bank">{{ totalBank() | number:'1.2-2' }}</td>
+              <td class="col-money col-danger">{{ totalPaid() | number:'1.2-2' }}</td>
+              <td class="col-money col-danger">{{ totalExpenses() | number:'1.2-2' }}</td>
+              <td class="col-money" [class.col-success]="totalClosing() >= 0" [class.col-danger]="totalClosing() < 0">
+                {{ totalClosing() | number:'1.2-2' }}
+              </td>
+              <td class="col-money" [class.col-success]="totalNet() >= 0" [class.col-danger]="totalNet() < 0">
+                {{ totalNet() | number:'1.2-2' }}
+              </td>
+              <td class="col-actions"></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 

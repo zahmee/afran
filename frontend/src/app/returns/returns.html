@@ -1,12 +1,28 @@
 <div class="page">
+  <!-- طباعة فقط -->
+  <div class="print-header">
+    <h1>تقرير المرتجعات</h1>
+    <p>تاريخ الطباعة: {{ today | date:'yyyy/MM/dd HH:mm' }}</p>
+  </div>
+
   <div class="page-header">
-    <div>
+    <div class="header-right">
       <h1 class="page-title">المرتجعات</h1>
       <p class="page-subtitle">@if (!loading()) { {{ total() }} سجل إجمالي }</p>
     </div>
-    @if (auth.canAdd()) {
-      <p-button label="تسجيل مرتجع" icon="pi pi-plus" (onClick)="newReturn()" />
-    }
+    <div class="header-actions">
+      @if (auth.canAdd()) {
+        <p-button label="تسجيل مرتجع" icon="pi pi-plus" (onClick)="newReturn()" />
+      }
+      <p-button
+        label="طباعة"
+        icon="pi pi-print"
+        severity="secondary"
+        (onClick)="print()"
+        class="print-btn"
+        aria-label="طباعة"
+      />
+    </div>
   </div>
 
   <!-- فلاتر -->
@@ -117,6 +133,12 @@
           }
         </tbody>
       </table>
+
+      <!-- الإجمالي -->
+      <div class="table-footer">
+        <div class="footer-label">الإجمالي</div>
+        <div class="footer-value">{{ totalAmount() | number:"1.2-2" }} ر.س</div>
+      </div>
     </div>
 
     <div class="pagination">

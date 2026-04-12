@@ -1,8 +1,8 @@
 import {
   DomRendererFactory2
-} from "./chunk-FL3S22CY.js";
-import "./chunk-KIWFLJHT.js";
-import "./chunk-IQPAA7VO.js";
+} from "./chunk-THPYNL77.js";
+import "./chunk-PFUDBLSM.js";
+import "./chunk-7R3QAIF5.js";
 import {
   ANIMATION_MODULE_TYPE,
   Injectable,
@@ -22,8 +22,8 @@ import {
   makeEnvironmentProviders,
   ɵɵdefineInjectable
 } from "./chunk-SF4Q7AK6.js";
-import "./chunk-HWYXSU2G.js";
 import "./chunk-JRFR6BLO.js";
+import "./chunk-HWYXSU2G.js";
 import "./chunk-MARUHEWW.js";
 import "./chunk-GOMI4DH3.js";
 
@@ -53,7 +53,7 @@ var AsyncAnimationRendererFactory = class _AsyncAnimationRendererFactory {
     this._engine?.flush();
   }
   loadImpl() {
-    const loadFn = () => this.moduleImpl ?? import("./browser-NMZQK5XO.js").then((m) => m);
+    const loadFn = () => this.moduleImpl ?? import("./browser-2OO7DSSN.js").then((m) => m);
     let moduleImplPromise;
     if (this.loadingSchedulerFn) {
       moduleImplPromise = this.loadingSchedulerFn(loadFn);

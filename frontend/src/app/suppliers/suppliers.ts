@@ -61,6 +61,7 @@ export class Suppliers implements OnInit {
   protected readonly types = signal<SupplierType[]>([]);
   protected readonly loading = signal(true);
   protected readonly searchQuery = signal('');
+  protected readonly today = new Date();
   protected readonly filteredSuppliers = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     if (!q) return this.suppliers();
@@ -83,6 +84,10 @@ export class Suppliers implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  protected print() {
+    window.print();
   }
 
   protected openDialog(supplier?: Supplier) {
