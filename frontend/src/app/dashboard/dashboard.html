@@ -1,24 +1,35 @@
 <div class="dashboard">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
   <!-- Welcome Banner -->
   <div class="welcome-banner">
-    <div class="welcome-content">
+    <div class="welcome-text-wrap">
+      <div class="greeting-badge">
+        <i class="pi pi-sun"></i>
+        <span>ملخص اليوم</span>
+      </div>
       <h1 class="welcome-title">مرحباً، {{ auth.user()?.full_name ?? '' }}</h1>
-      <p class="welcome-text">إليك ملخص نشاط المحل اليوم</p>
+      <p class="welcome-text">نشاط المحل والمبيعات في لمحة</p>
     </div>
     <div class="welcome-art">
-      <i class="pi pi-shop art-icon"></i>
+      <div class="art-circle">
+        <i class="pi pi-store"></i>
+      </div>
     </div>
   </div>
 
   @if (loading()) {
     <div class="loading-state">
-      <p-progressSpinner strokeWidth="4" />
+      <p-progressSpinner strokeWidth="3" />
     </div>
   } @else {
     <!-- Stats Grid -->
     <div class="stats-grid">
-      @for (stat of statCards(); track stat.title) {
-        <div class="stat-card">
+      @for (stat of statCards(); track stat.title; let i = $index) {
+        <div class="stat-card" [class]="'stat-card-' + i">
+          <div class="stat-glow" [class]="stat.gradient"></div>
           <div class="stat-icon-wrap" [class]="stat.gradient">
             <i class="pi {{ stat.icon }}"></i>
           </div>
@@ -33,54 +44,138 @@
                 <span class="stat-unit">{{ stat.unit }}</span>
               }
             </div>
+            <div class="stat-spark">
+              <span class="spark-dot" [class]="stat.gradient"></span>
+              <span class="spark-text"> هذا الشهر </span>
+            </div>
           </div>
         </div>
       }
     </div>
 
-    <!-- Charts -->
-    <div class="charts-row">
+    <!-- Charts Section -->
+    <div class="charts-section">
       <div class="chart-card chart-bar">
-        <h2 class="chart-title">
-          <i class="pi pi-chart-bar"></i>
-          المقارنة الشهرية (آخر 6 أشهر)
-        </h2>
+        <div class="chart-header">
+          <div class="chart-title-wrap">
+            <div class="chart-icon blue">
+              <i class="pi pi-chart-bar"></i>
+            </div>
+            <div>
+              <h2 class="chart-title">المقارنة الشهرية</h2>
+              <p class="chart-subtitle">آخر 6 أشهر</p>
+            </div>
+          </div>
+          <div class="chart-legend-custom">
+            <span class="legend-dot blue"></span><span>بضاعة</span>
+            <span class="legend-dot green"></span><span>سدادات</span>
+            <span class="legend-dot rose"></span><span>مرتجعات</span>
+          </div>
+        </div>
         <div class="chart-body">
-          <p-chart
-            type="bar"
-            [data]="barChartData()"
-            [options]="barChartOptions"
-          />
+          <p-chart type="bar" [data]="barChartData()" [options]="barChartOptions" />
         </div>
       </div>
 
-      <div class="chart-card chart-donut">
-        <h2 class="chart-title">
-          <i class="pi pi-chart-pie"></i>
-          توزيع الإجماليات
-        </h2>
-        <div class="chart-body">
-          <p-chart
-            type="doughnut"
-            [data]="donutChartData()"
-            [options]="donutChartOptions"
-          />
+      <div class="charts-side">
+        <div class="chart-card chart-donut">
+          <div class="chart-header">
+            <div class="chart-title-wrap">
+              <div class="chart-icon emerald">
+                <i class="pi pi-chart-pie"></i>
+              </div>
+              <div>
+                <h2 class="chart-title">توزيع الإجماليات</h2>
+                <p class="chart-subtitle">النسب المالية</p>
+              </div>
+            </div>
+          </div>
+          <div class="chart-body donut-body">
+            <p-chart type="doughnut" [data]="donutChartData()" [options]="donutChartOptions" />
+          </div>
+        </div>
+
+        <!-- Mini Stats -->
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <span class="mini-stat-label">إجمالي البضاعة</span>
+            <span class="mini-stat-value blue">
+              {{ getTotalReceipts() | number:'1.0-0' }} ر.س
+            </span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat-label">إجمالي السدادات</span>
+            <span class="mini-stat-value emerald">
+              {{ getTotalPayments() | number:'1.0-0' }} ر.س
+            </span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat-label">إجمالي المرتجعات</span>
+            <span class="mini-stat-value rose">
+              {{ getTotalReturns() | number:'1.0-0' }} ر.س
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Quick Actions -->
     <div class="section">
-      <h2 class="section-title">إجراءات سريعة</h2>
+      <h2 class="section-title">
+        <i class="pi pi-bolt"></i>
+        إجراءات سريعة
+      </h2>
       <div class="actions-grid">
-        @for (action of quickActions; track action.label) {
-          <a class="action-card" [routerLink]="action.route">
-            <div class="action-icon">
-              <i class="pi {{ action.icon }}"></i>
+        @for (action of quickActions; track action.label; let i = $index) {
+          <a class="action-card" [routerLink]="action.route" [class]="'action-' + i">
+            <div class="action-icon-wrap">
+              <div class="action-icon">
+                <i class="pi {{ action.icon }}"></i>
+              </div>
+              <div class="action-shine"></div>
             </div>
             <span class="action-label">{{ action.label }}</span>
+            <i class="pi pi-arrow-left action-arrow"></i>
           </a>
         }
+      </div>
+    </div>
+
+    <!-- Activity Timeline -->
+    <div class="section timeline-section">
+      <h2 class="section-title">
+        <i class="pi pi-history"></i>
+        آخر النشاطات
+      </h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot blue"></div>
+          <div class="timeline-content">
+            <span class="timeline-title">تم استلام بضاعة جديدة</span>
+            <span class="timeline-time">منذ 2 ساعة</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot emerald"></div>
+          <div class="timeline-content">
+            <span class="timeline-title">تم تسجيل سداد للمورد</span>
+            <span class="timeline-time">منذ 5 ساعات</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot amber"></div>
+          <div class="timeline-content">
+            <span class="timeline-title">تم إضافة مورد جديد</span>
+            <span class="timeline-time">منذ يوم</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot rose"></div>
+          <div class="timeline-content">
+            <span class="timeline-title">تم تسجيل مرتجع</span>
+            <span class="timeline-time">منذ يومين</span>
+          </div>
+        </div>
       </div>
     </div>
   }

@@ -184,6 +184,16 @@ export class Dashboard implements OnInit {
     { label: 'إضافة مورد', icon: 'pi-user-plus', route: '/suppliers' },
   ];
 
+  protected getTotalReceipts() {
+    return this.statsData()?.monthly.reduce((s, p) => s + p.receipts, 0) ?? 0;
+  }
+  protected getTotalPayments() {
+    return this.statsData()?.monthly.reduce((s, p) => s + p.payments, 0) ?? 0;
+  }
+  protected getTotalReturns() {
+    return this.statsData()?.monthly.reduce((s, p) => s + p.returns, 0) ?? 0;
+  }
+
   async ngOnInit() {
     try {
       const data = await firstValueFrom(
